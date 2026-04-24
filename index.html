@@ -170,6 +170,20 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 .num-table td:first-child { font-weight: 700; width: 58px; }
 .num-table td:nth-child(2) { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; }
 .num-table td:nth-child(3) { color: var(--text2); font-size: 11px; font-family: 'Noto Sans JP', Inter, sans-serif; }
+
+/* Drawing mode */
+.draw-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 1rem; }
+.stroke-info { font-size: 13px; color: var(--text2); font-weight: 600; }
+.stroke-info b { color: var(--text); }
+.canvas-wrap { position: relative; width: 300px; height: 300px; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow-card); overflow: hidden; touch-action: none; }
+@media (max-width: 340px) { .canvas-wrap { width: 260px; height: 260px; } }
+.canvas-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.canvas-wrap .guide-char { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Noto Sans JP', sans-serif; font-size: 240px; font-weight: 400; color: var(--text); opacity: 0.06; pointer-events: none; user-select: none; line-height: 1; }
+@media (max-width: 340px) { .canvas-wrap .guide-char { font-size: 200px; } }
+.draw-controls { display: flex; gap: 8px; }
+.draw-result { font-size: 14px; font-weight: 600; text-align: center; min-height: 24px; }
+.draw-result.ok { color: var(--ok-text); }
+.draw-result.no { color: var(--no-text); }
 </style>
 </head>
 <body>
@@ -338,7 +352,26 @@ function ruReading(n){
 }
 
 const TOPICS=[{id:'hira',label:'Хирагана',icon:'あ',cls:'hp',hg:true},{id:'kata',label:'Катакана',icon:'ア',cls:'kp',hg:true},{id:'nums',label:'Цифры',icon:'1',cls:'np',hg:false},{id:'mix',label:'Микс',icon:'∞',cls:'mp',hg:false}];
-const MODE_GROUPS={hira:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'}],kata:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'}],nums:[{id:'num2jp',label:'Цифра → JP',desc:'Число → по-японски'},{id:'jp2num',label:'JP → Цифра',desc:'Японское → цифра'}],mix:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → знак'},{id:'num2jp',label:'Цифра → JP',desc:'Число → JP'},{id:'jp2num',label:'JP → Цифра',desc:'JP → цифра'}]};
+const MODE_GROUPS={hira:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'},{id:'draw',label:'Написание ✍︎',desc:'Пока только для あ (тест)'}],kata:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'}],nums:[{id:'num2jp',label:'Цифра → JP',desc:'Число → по-японски'},{id:'jp2num',label:'JP → Цифра',desc:'Японское → цифра'}],mix:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → знак'},{id:'num2jp',label:'Цифра → JP',desc:'Число → JP'},{id:'jp2num',label:'JP → Цифра',desc:'JP → цифра'}]};
+
+// ============ STROKE DATA ============
+// Coordinates in 300x300 canvas space.
+// Each stroke has: start [x,y], end [x,y] — used to check position & direction.
+// Form is NOT checked. Only start point proximity (±55px) and direction angle (±50°).
+const STROKE_DATA = {
+  'あ': [
+    // Stroke 1: horizontal line near top, slight tilt down-right (like an equals sign top)
+    { start: [85, 95], end: [215, 95] },
+    // Stroke 2: long vertical curve from top down through the character
+    { start: [155, 55], end: [140, 255] },
+    // Stroke 3: loop from upper-right, curves down-left, around, and back up-right
+    { start: [215, 135], end: [200, 215] }
+  ]
+};
+
+// Characters available for drawing mode
+const DRAWABLE_CHARS = Object.keys(STROKE_DATA);
+
 
 const LS='nihongo_v1';
 const ld=()=>{try{return JSON.parse(localStorage.getItem(LS))||{cs:{},sp:[]}}catch{return{cs:{},sp:[]}}};
@@ -529,6 +562,10 @@ function buildPool(){
   else if(st.topic==='kata'){pool=bKP(st.groups);if(wo){const w=weakChars('kata',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.char));}}
   else if(st.topic==='nums'){pool=buildNumPool(st.numMax);}
   else if(st.topic==='mix'){const inc=st.groups.length?st.groups:['Хирагана','Катакана','Цифры'];if(inc.includes('Хирагана'))pool=[...pool,...bHP([])];if(inc.includes('Катакана'))pool=[...pool,...bKP([])];if(inc.includes('Цифры'))pool=[...pool,...buildNumPool(st.numMax)];}
+  // If only 'draw' is selected, filter pool to only drawable chars
+  if(st.modes.length===1&&st.modes[0]==='draw'){
+    pool=pool.filter(p=>p.char&&STROKE_DATA.hasOwnProperty(p.char));
+  }
   return pool;
 }
 const shuffle=a=>[...a].sort(()=>Math.random()-.5);
@@ -549,8 +586,17 @@ function updateStreak(){const el=document.getElementById('streak-el');if(st.stre
 function getDist(cor,pool){return[...new Set(pool.filter(v=>v!==cor))].sort(()=>Math.random()-.5).slice(0,3);}
 
 function getModeForCard(c){
-  let valid=c.type==='num'?st.modes.filter(m=>m==='num2jp'||m==='jp2num'):st.modes.filter(m=>m==='char2sound'||m==='sound2char');
-  if(!valid.length)return c.type==='num'?'num2jp':'char2sound';
+  if(c.type==='num'){
+    const valid=st.modes.filter(m=>m==='num2jp'||m==='jp2num');
+    return valid.length?valid[Math.floor(Math.random()*valid.length)]:'num2jp';
+  }
+  // For kana: draw mode only valid if char is in STROKE_DATA
+  const canDraw=STROKE_DATA.hasOwnProperty(c.char);
+  const valid=st.modes.filter(m=>{
+    if(m==='draw')return canDraw;
+    return m==='char2sound'||m==='sound2char';
+  });
+  if(!valid.length)return 'char2sound';
   return valid[Math.floor(Math.random()*valid.length)];
 }
 
@@ -565,9 +611,200 @@ function renderCard(){
   const sp=st.cards.map(x=>x.sound).filter(Boolean);const cp=st.cards.map(x=>x.char).filter(Boolean);
   if(m==='char2sound'){document.getElementById('qhint').textContent='Как читается?';qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.char;renderOpts(c.sound,sp,v=>chkOpt(v,c.sound,c.char+' = '+c.sound,(c.type||st.topic)+':'+c.char),false);}
   else if(m==='sound2char'){document.getElementById('qhint').textContent='Выберите знак:';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.sound;renderOpts(c.char,cp,v=>chkOpt(v,c.char,c.sound+' = '+c.char,(c.type||st.topic)+':'+c.char),true);}
+  else if(m==='draw'){document.getElementById('qhint').textContent='Напишите знак (звук: '+c.sound+')';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.char;renderDraw(c);}
   else if(m==='num2jp'){document.getElementById('qhint').textContent='Напишите по-японски:';qq.className='qchar';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.num;renderInp(v=>chkInp(v,c.jp,c.ru||[],'nums:'+c.num));}
   else{document.getElementById('qhint').textContent='Что это за число?';qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.jp.split('/')[0];renderInp(v=>chkInpNum(v,c.num,c.ru||[],c.jp,'nums:'+c.num));}
 }
+
+function renderDraw(card){
+  const aa=document.getElementById('aarea');
+  const chInfo=STROKE_DATA[card.char];
+  const totalStrokes=chInfo.length;
+
+  aa.innerHTML=`
+    <div class="draw-wrap">
+      <div class="stroke-info">Штрих <b id="stroke-n">1</b> из <b>${totalStrokes}</b></div>
+      <div class="canvas-wrap" id="cwrap">
+        <div class="guide-char">${card.char}</div>
+        <canvas id="draw-canvas" width="600" height="600"></canvas>
+      </div>
+      <div class="draw-result" id="draw-result">&nbsp;</div>
+      <div class="draw-controls">
+        <button class="btn btn-soft btn-sm" id="draw-undo">← Отменить</button>
+        <button class="btn btn-dark btn-sm" id="draw-done">Готово</button>
+      </div>
+    </div>
+  `;
+
+  const canvas=document.getElementById('draw-canvas');
+  const ctx=canvas.getContext('2d');
+  // Canvas is 600x600 internally, displayed 300x300 — we'll work in internal coords via scaling
+  const rect=()=>canvas.getBoundingClientRect();
+  // Scale factor between display px and internal canvas px
+  const getScale=()=>{const r=rect();return 600/r.width;};
+
+  const userStrokes=[]; // each stroke: array of [x,y] points in 600-space
+  let currentStroke=null;
+  const strokeResults=[]; // per-stroke: {ok:bool, reason:string}
+  let blocked=false; // true when user must clear before continuing
+
+  ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=16;
+
+  function getPos(evt){
+    const r=rect();
+    const t=(evt.touches&&evt.touches[0])||evt;
+    const scale=getScale();
+    return [(t.clientX-r.left)*scale,(t.clientY-r.top)*scale];
+  }
+
+  function drawPointToPoint(a,b,color){
+    ctx.strokeStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(a[0],a[1]);
+    ctx.lineTo(b[0],b[1]);
+    ctx.stroke();
+  }
+
+  function start(e){
+    e.preventDefault();
+    if(blocked)return;
+    if(userStrokes.length>=totalStrokes)return;
+    currentStroke=[getPos(e)];
+    userStrokes.push(currentStroke);
+  }
+  function move(e){
+    e.preventDefault();
+    if(!currentStroke||blocked)return;
+    const p=getPos(e);
+    const last=currentStroke[currentStroke.length-1];
+    drawPointToPoint(last,p,getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#1C1C1E');
+    currentStroke.push(p);
+  }
+  function end(e){
+    e.preventDefault();
+    if(!currentStroke)return;
+    const idx=userStrokes.length-1;
+    const expected=chInfo[idx];
+    // Coords in 300-space, scale ×2 to match 600 canvas
+    const expStart=[expected.start[0]*2,expected.start[1]*2];
+    const expEnd=[expected.end[0]*2,expected.end[1]*2];
+    const userStart=currentStroke[0];
+    const userEnd=currentStroke[currentStroke.length-1];
+    // 1. Start proximity — tighter (±80px in 600-space = ±40px in 300-space)
+    const distStart=Math.hypot(userStart[0]-expStart[0],userStart[1]-expStart[1]);
+    const startOk=distStart<=80;
+    // 2. Direction — stricter (±35° instead of ±50°)
+    const userVec=[userEnd[0]-userStart[0],userEnd[1]-userStart[1]];
+    const expVec=[expEnd[0]-expStart[0],expEnd[1]-expStart[1]];
+    const userLen=Math.hypot(userVec[0],userVec[1]);
+    const expLen=Math.hypot(expVec[0],expVec[1]);
+    let dirOk=false;
+    if(userLen>25&&expLen>0){
+      const dot=(userVec[0]*expVec[0]+userVec[1]*expVec[1])/(userLen*expLen);
+      dirOk=dot>=0.82; // cos(35°) ≈ 0.82
+    }
+    // 3. Length — stroke must be at least 40% and at most 180% of expected length
+    const lengthOk=userLen>=expLen*0.4&&userLen<=expLen*1.8;
+    // 4. End point proximity — within ±100px of expected end
+    const distEnd=Math.hypot(userEnd[0]-expEnd[0],userEnd[1]-expEnd[1]);
+    const endOk=distEnd<=140;
+
+    const ok=startOk&&dirOk&&lengthOk&&endOk;
+    // Correct strokes keep neutral text color; wrong ones turn red
+    const neutralColor=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#1C1C1E';
+    const color=ok?neutralColor:'#FF3B30';
+    // Only repaint if wrong (correct stays as already drawn in neutral)
+    if(!ok){
+      for(let i=1;i<currentStroke.length;i++){
+        drawPointToPoint(currentStroke[i-1],currentStroke[i],color);
+      }
+    }
+    strokeResults.push({ok,startOk,dirOk,lengthOk,endOk});
+    currentStroke=null;
+
+    if(!ok){
+      // Block further drawing, show what went wrong
+      blocked=true;
+      const rEl=document.getElementById('draw-result');
+      rEl.className='draw-result no';
+      let why=[];
+      if(!startOk)why.push('не тот старт');
+      else if(!dirOk)why.push('не то направление');
+      else if(!lengthOk)why.push(userLen<expLen*0.4?'слишком короткий':'слишком длинный');
+      else if(!endOk)why.push('не та конечная точка');
+      rEl.textContent=`✗ Штрих ${idx+1}: ${why.join(', ')}. Нажмите «Отменить»`;
+      return;
+    }
+
+    const next=userStrokes.length+1;
+    if(next<=totalStrokes){
+      document.getElementById('stroke-n').textContent=next;
+    }
+  }
+
+  canvas.addEventListener('mousedown',start);
+  canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',end);
+  canvas.addEventListener('mouseleave',e=>{if(currentStroke)end(e);});
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',end,{passive:false});
+
+  document.getElementById('draw-undo').onclick=()=>{
+    if(!userStrokes.length)return;
+    // Remove last stroke
+    userStrokes.pop();
+    strokeResults.pop();
+    blocked=false;
+    currentStroke=null;
+    // Redraw everything from scratch
+    ctx.clearRect(0,0,600,600);
+    const neutralColor=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#1C1C1E';
+    for(let si=0;si<userStrokes.length;si++){
+      const stroke=userStrokes[si];
+      const result=strokeResults[si];
+      const color=result&&result.ok?neutralColor:'#FF3B30';
+      for(let i=1;i<stroke.length;i++){
+        drawPointToPoint(stroke[i-1],stroke[i],color);
+      }
+    }
+    // Update counter
+    document.getElementById('stroke-n').textContent=Math.min(userStrokes.length+1,totalStrokes);
+    document.getElementById('draw-result').textContent='';
+    document.getElementById('draw-result').className='draw-result';
+  };
+
+  document.getElementById('draw-done').onclick=()=>{
+    if(st.answered)return;
+    st.answered=true;
+    // Count correct strokes; also check total count
+    const countOk=userStrokes.length===totalStrokes;
+    const correctCount=strokeResults.filter(r=>r.ok).length;
+    // Overall: ok if count matches AND all strokes valid
+    const allOk=countOk&&correctCount===totalStrokes;
+    const key='hira:'+card.char;
+    recChar(key,allOk);
+    if(allOk){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}
+    else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:card,ans:`${correctCount}/${userStrokes.length} штрихов`,cor:`${totalStrokes} штрихов по порядку`});st.streak=0;}
+    updateStreak();
+    document.getElementById('spc').textContent='✓ '+st.ok;
+    document.getElementById('spw').textContent='✗ '+st.fail;
+    const rEl=document.getElementById('draw-result');
+    if(allOk){
+      rEl.className='draw-result ok';
+      rEl.textContent='✓ Отлично! Все штрихи верные';
+    } else {
+      rEl.className='draw-result no';
+      let msg=[];
+      if(!countOk)msg.push(`ожидается ${totalStrokes} штрих${totalStrokes===1?'':(totalStrokes<5?'а':'ов')}, нарисовано ${userStrokes.length}`);
+      const wrongStrokes=strokeResults.map((r,i)=>r.ok?null:i+1).filter(x=>x);
+      if(wrongStrokes.length)msg.push(`штрих${wrongStrokes.length===1?'':'и'} ${wrongStrokes.join(', ')} — неверно`);
+      rEl.textContent='✗ '+msg.join('; ');
+    }
+    setTimeout(()=>nextCard(),allOk?1500:2800);
+  };
+}
+
 
 function renderOpts(cor,pool,onChk,jp){
   const opts=[cor,...getDist(cor,pool)].sort(()=>Math.random()-.5);
