@@ -45,9 +45,16 @@ body { overflow-x: hidden; }
 .btn-soft { background: var(--surface); color: var(--text); box-shadow: var(--shadow-card); }
 .btn-sm { padding: 8px 16px; font-size: 13px; }
 
-.tabs { display: flex; background: var(--surface2); border-radius: 14px; padding: 4px; margin-bottom: 1.25rem; gap: 2px; }
-.tab { flex: 1; text-align: center; padding: 10px 6px; border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text2); transition: all .2s; background: transparent; }
-.tab.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-tab); }
+.tabs { display: flex; gap: 3px; margin-bottom: 0; padding: 0; background: transparent; }
+.tab { flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px 12px 0 0; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text2); transition: all .2s; background: var(--surface2); }
+.tab.on { background: var(--surface); color: var(--text); }
+
+/* Section panels — top-only rounding, slightly lighter than bg */
+.sec-panel { background: var(--surface); padding: 1.1rem 1rem; margin-bottom: 3px; }
+.sec-panel.top { border-radius: 20px 20px 0 0; }
+.sec-panel.mid { border-radius: 0; }
+.sec-panel.bot { border-radius: 0 0 20px 20px; margin-bottom: 14px; }
+.sec-panel.solo { border-radius: 20px 20px 0 0; margin-bottom: 14px; }
 
 .tgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
 @media (max-width: 340px) { .tgrid { grid-template-columns: repeat(2, 1fr); } }
@@ -190,12 +197,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 <div class="app">
 
 <div class="screen active" id="s-home">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
-    <div>
-      <h1 style="font-size:clamp(22px,7vw,26px);font-weight:700;color:var(--text)">日本語</h1>
-      <p style="font-size:14px;color:var(--text2);margin-top:2px;font-weight:500">Тренажёр</p>
-    </div>
-    <div style="width:46px;height:46px;border-radius:13px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Noto Sans JP',sans-serif;font-size:1.3rem;color:var(--accent-text);flex-shrink:0">あ</div>
+  <div style="margin-bottom:1.5rem">
+    <h1 style="font-size:clamp(22px,7vw,26px);font-weight:700;color:var(--text)">日本語</h1>
+    <p style="font-size:14px;color:var(--text2);margin-top:2px;font-weight:500">Тренажёр</p>
   </div>
   <div class="tabs">
     <div class="tab on" onclick="swTab('train')">Тренировка</div>
@@ -204,53 +208,55 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
   </div>
 
   <div id="tab-train">
-    <p class="sl" style="margin-top:0">Тема</p>
-    <div class="tgrid" id="tgrid"></div>
+    <div class="sec-panel top">
+      <p class="sl" style="margin-top:0">Тема</p>
+      <div class="tgrid" id="tgrid"></div>
+    </div>
     <div id="cfg" style="display:none">
-      <p class="sl">Режим <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text2)">— можно несколько</span></p>
-      <div id="mcards"></div>
-      <div id="group-section">
-        <p class="sl" id="group-label">Группы знаков</p>
+      <div id="group-section" class="sec-panel mid">
+        <p class="sl" style="margin-top:0" id="group-label">Группы знаков</p>
         <div class="twrap" id="gtags"></div>
-      </div>
-      <div id="num-diff-section" style="display:none">
-        <p class="sl">Диапазон чисел</p>
-        <div class="seg" id="num-diff">
-          <button data-d="10" class="on">1–10</button>
-          <button data-d="100">1–100</button>
-          <button data-d="1000">1–1000</button>
-          <button data-d="9999">1–9999</button>
+        <div id="num-diff-section" style="display:none">
+          <p class="sl">Диапазон чисел</p>
+          <div class="seg" id="num-diff">
+            <button data-d="10" class="on">1–10</button>
+            <button data-d="100">1–100</button>
+            <button data-d="1000">1–1000</button>
+            <button data-d="9999">1–9999</button>
+          </div>
         </div>
-        <div style="height:12px"></div>
+        <div id="warea" style="display:none">
+          <div style="height:8px"></div>
+          <p class="sl" style="margin-top:0">Слабые знаки</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px" id="wchips"></div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;">
+            <input type="checkbox" id="wonly" style="accent-color:var(--accent);width:16px;height:16px"> Тренировать только слабые
+          </label>
+        </div>
       </div>
-      <p class="sl">Настройки</p>
-      <div class="settings-card">
-        <div class="toggle-row">
+      <div class="sec-panel bot" style="padding-bottom:1.25rem">
+        <p class="sl" style="margin-top:0">Как тренироваться <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text2)">— режимов можно несколько</span></p>
+        <div id="mcards"></div>
+        <div class="toggle-row" style="border-top:.5px solid var(--border);margin-top:4px">
           <div><div class="toggle-label">Бесконечный режим</div><div class="toggle-sub">Карточки идут непрерывно</div></div>
           <label class="toggle"><input type="checkbox" id="inf-mode" onchange="toggleInfMode()"><span class="toggle-slider"></span></label>
         </div>
-        <div class="toggle-row">
-          <div><div class="toggle-label">Хард-режим</div><div class="toggle-sub">Ввод звука вручную вместо 4 вариантов</div></div>
-          <label class="toggle"><input type="checkbox" id="hard-mode"><span class="toggle-slider"></span></label>
-        </div>
-        <div id="sprint-len-row" class="toggle-row" style="border-bottom:none">
+        <div id="sprint-len-row" class="toggle-row">
           <div class="toggle-label">Карточек в спринте</div>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="range" id="slen" min="5" max="30" step="5" value="15" style="width:80px;accent-color:var(--accent)">
             <span style="font-size:14px;font-weight:600;min-width:24px;color:var(--text)" id="slen-out">15</span>
           </div>
         </div>
+        <div class="toggle-row" style="border-bottom:none">
+          <div><div class="toggle-label">Сложный режим</div><div class="toggle-sub">Ввод звука вручную вместо 4 вариантов</div></div>
+          <label class="toggle"><input type="checkbox" id="hard-mode"><span class="toggle-slider"></span></label>
+        </div>
+        <div style="height:4px"></div>
+        <button class="btn btn-dark" style="width:100%;padding:15px;font-size:15px" onclick="startSprint()">Начать →</button>
       </div>
-      <div id="warea" style="display:none;margin-bottom:12px">
-        <p class="sl">Слабые знаки</p>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px" id="wchips"></div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-top:6px">
-          <input type="checkbox" id="wonly" style="accent-color:var(--accent);width:16px;height:16px"> Тренировать только слабые
-        </label>
-        <div style="height:12px"></div>
-      </div>
-      <button class="btn btn-dark" style="width:100%;padding:15px;font-size:15px" onclick="startSprint()">Начать →</button>
     </div>
+    <!-- when cfg hidden, Тема panel acts as solo top -->
   </div>
 
   <div id="tab-alpha" style="display:none"><div id="alpha-content"></div></div>
@@ -295,8 +301,8 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 
 </div>
 <script>
-const H=[{row:'Гласные',chars:[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o']]},{row:'К',chars:[['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko']]},{row:'С',chars:[['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so']]},{row:'Т',chars:[['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to']]},{row:'Н',chars:[['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no']]},{row:'Х',chars:[['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho']]},{row:'М',chars:[['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo']]},{row:'Я',chars:[['や','ya'],['ゆ','yu'],['よ','yo']]},{row:'Р',chars:[['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro']]},{row:'В',chars:[['わ','wa'],['を','wo']]},{row:'Н(нос.)',chars:[['ん','n']]},{row:'Дакутэн',chars:[['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],['だ','da'],['で','de'],['ど','do'],['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po']]}];
-const KA=[{row:'Гласные',chars:[['ア','a'],['イ','i'],['ウ','u'],['エ','e'],['オ','o']]},{row:'К',chars:[['カ','ka'],['キ','ki'],['ク','ku'],['ケ','ke'],['コ','ko']]},{row:'С',chars:[['サ','sa'],['シ','shi'],['ス','su'],['セ','se'],['ソ','so']]},{row:'Т',chars:[['タ','ta'],['チ','chi'],['ツ','tsu'],['テ','te'],['ト','to']]},{row:'Н',chars:[['ナ','na'],['ニ','ni'],['ヌ','nu'],['ネ','ne'],['ノ','no']]},{row:'Х',chars:[['ハ','ha'],['ヒ','hi'],['フ','fu'],['ヘ','he'],['ホ','ho']]},{row:'М',chars:[['マ','ma'],['ミ','mi'],['ム','mu'],['メ','me'],['モ','mo']]},{row:'Я',chars:[['ヤ','ya'],['ユ','yu'],['ヨ','yo']]},{row:'Р',chars:[['ラ','ra'],['リ','ri'],['ル','ru'],['レ','re'],['ロ','ro']]},{row:'В',chars:[['ワ','wa'],['ヲ','wo']]},{row:'Н(нос.)',chars:[['ン','n']]}];
+const H=[{row:'Гласные',chars:[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o']]},{row:'К',chars:[['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko']]},{row:'С',chars:[['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so']]},{row:'Т',chars:[['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to']]},{row:'Н',chars:[['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no'],['ん','n']]},{row:'Х',chars:[['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho']]},{row:'М',chars:[['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo']]},{row:'Я',chars:[['や','ya'],['ゆ','yu'],['よ','yo']]},{row:'Р',chars:[['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro']]},{row:'В',chars:[['わ','wa'],['を','wo']]},{row:'Дакутэн',chars:[['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],['だ','da'],['で','de'],['ど','do'],['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po']]}];
+const KA=[{row:'Гласные',chars:[['ア','a'],['イ','i'],['ウ','u'],['エ','e'],['オ','o']]},{row:'К',chars:[['カ','ka'],['キ','ki'],['ク','ku'],['ケ','ke'],['コ','ko']]},{row:'С',chars:[['サ','sa'],['シ','shi'],['ス','su'],['セ','se'],['ソ','so']]},{row:'Т',chars:[['タ','ta'],['チ','chi'],['ツ','tsu'],['テ','te'],['ト','to']]},{row:'Н',chars:[['ナ','na'],['ニ','ni'],['ヌ','nu'],['ネ','ne'],['ノ','no'],['ン','n']]},{row:'Х',chars:[['ハ','ha'],['ヒ','hi'],['フ','fu'],['ヘ','he'],['ホ','ho']]},{row:'М',chars:[['マ','ma'],['ミ','mi'],['ム','mu'],['メ','me'],['モ','mo']]},{row:'Я',chars:[['ヤ','ya'],['ユ','yu'],['ヨ','yo']]},{row:'Р',chars:[['ラ','ra'],['リ','ri'],['ル','ru'],['レ','re'],['ロ','ro']]},{row:'В',chars:[['ワ','wa'],['ヲ','wo']]}];
 
 // ============ NUMBERS ============
 const DIGITS=['','いち','に','さん','し','ご','ろく','しち','はち','きゅう'];
@@ -433,7 +439,8 @@ function renderStats(){
   el.innerHTML=`<div class="rstats"><div class="rs"><div class="rsv">${d.sp.length}</div><div class="rsl">Спринтов</div></div><div class="rs"><div class="rsv">${tok+tfl}</div><div class="rsl">Ответов</div></div><div class="rs"><div class="rsv">${pct}%</div><div class="rsl">Точность</div></div></div>
   ${wall.length?`<p class="sl">Слабые знаки</p><div class="surface-card" style="padding:1rem"><div style="display:flex;flex-wrap:wrap;gap:6px">${wall.map(w=>`<span style="padding:5px 12px;border-radius:50px;background:var(--no-bg);color:var(--no-text);font-size:13px;font-weight:600;font-family:'Noto Sans JP',sans-serif">${w.char} <span style="font-size:11px;opacity:.7">${Math.round(w.rate*100)}%</span></span>`).join('')}</div></div>`:''}
   <p class="sl">История</p><div class="surface-card" style="padding:.75rem 1.25rem">${[...d.sp].reverse().slice(0,10).map(s=>{const dt=new Date(s.t),ds=dt.toLocaleDateString('ru',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),p=Math.round(s.c/(s.c+s.w)*100);return`<div class="hrow"><span class="hd">${ds}</span><span class="ht">${tN[s.topic]||s.topic}</span><span class="pp ${p>=80?'phi':p>=50?'pmi':'plo'}">${p}%</span></div>`;}).join('')}</div>
-  <button style="width:100%;margin-top:8px;background:var(--no-bg);color:var(--no-text);font-size:13px;padding:12px;border-radius:50px;border:none;font-family:Inter,sans-serif;font-weight:600;cursor:pointer" onclick="if(confirm('Сбросить весь прогресс?')){localStorage.removeItem('${LS}');renderStats()}">Сбросить прогресс</button>`;
+  <button style="width:100%;margin-top:8px;background:var(--no-bg);color:var(--no-text);font-size:13px;padding:12px;border-radius:50px;border:none;font-family:Inter,sans-serif;font-weight:600;cursor:pointer" onclick="if(confirm('Сбросить весь прогресс?')){localStorage.removeItem('${LS}');renderStats()}">Сбросить прогресс</button>
+  <p style="font-size:11px;color:var(--text2);margin-top:12px;line-height:1.5;text-align:center">Статистика хранится в вашем браузере. Если очистите данные сайта или зайдёте в режиме инкогнито, прогресс сбросится.</p>`;
 }
 
 function charCellHTML(topic,ch,rd){
@@ -511,15 +518,38 @@ function renderAlphabet(){
   `;
 }
 
-function toggleInfMode(){const on=document.getElementById('inf-mode').checked;document.getElementById('sprint-len-row').style.opacity=on?.35:1;document.getElementById('sprint-len-row').style.pointerEvents=on?'none':'auto';}
+function toggleInfMode(){
+  const on=document.getElementById('inf-mode').checked;
+  document.getElementById('sprint-len-row').style.display=on?'none':'';
+}
 
 function renderHome(){
   document.getElementById('tgrid').innerHTML=TOPICS.map(t=>`<div class="tpill ${t.cls}${st.topic===t.id?' on':''}" onclick="selTopic('${t.id}')"><span class="ico">${t.id==='hira'||t.id==='kata'?`<span class="jpf">${t.icon}</span>`:t.icon}</span><span class="lbl">${t.label}</span></div>`).join('');
+  const cfgVisible=!!st.topic;
+  // Adjust Тема panel rounding
+  const temaPanel=document.querySelector('#tab-train .sec-panel');
+  if(temaPanel){
+    temaPanel.className=cfgVisible?'sec-panel top':'sec-panel top';
+    temaPanel.style.borderRadius=cfgVisible?'20px 20px 0 0':'20px 20px 0 0';
+  }
   if(st.topic){document.getElementById('cfg').style.display='block';renderCfg();}
   else document.getElementById('cfg').style.display='none';
 }
 
-function selTopic(id){st.topic=id;st.modes=[];st.groups=[];document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));event.currentTarget.classList.add('on');document.getElementById('cfg').style.display='block';renderCfg();}
+function selTopic(id){
+  const prev=st.topic;
+  st.topic=id;
+  // Groups don't apply to nums — clear them when entering nums
+  if(id==='nums')st.groups=[];
+  // Filter modes to those valid for the new topic
+  const validIds=(MODE_GROUPS[id]||[]).map(m=>m.id);
+  st.modes=st.modes.filter(m=>validIds.includes(m));
+  if(!st.modes.length&&validIds.length)st.modes=[validIds[0]];
+  document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));
+  event.currentTarget.classList.add('on');
+  document.getElementById('cfg').style.display='block';
+  renderCfg();
+}
 
 function toggleMode(id){const i=st.modes.indexOf(id);if(i>=0){if(st.modes.length===1)return;st.modes.splice(i,1);}else st.modes.push(id);document.querySelectorAll('.mbtn[data-mid]').forEach(m=>m.classList.toggle('on',st.modes.includes(m.dataset.mid)));}
 
@@ -558,10 +588,11 @@ function renderCfg(){
   document.getElementById('mcards').innerHTML=`<div class="mrow">${av.map(m=>`<button class="mbtn${st.modes.includes(m.id)?' on':''}" data-mid="${m.id}" onclick="toggleMode('${m.id}')"><h4>${m.label}</h4><p>${m.desc}</p></button>`).join('')}</div>`;
   const gs=document.getElementById('group-section'),gt=document.getElementById('gtags');
   const allBtnHTML=`<span class="gtag gtag-all" onclick="toggleAllGroups()">Выбрать всё</span>`;
-  if(st.topic==='hira'){gs.style.display='block';document.getElementById('group-label').textContent='Группы знаков';gt.innerHTML=allBtnHTML+H.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
-  else if(st.topic==='kata'){gs.style.display='block';document.getElementById('group-label').textContent='Группы знаков';gt.innerHTML=allBtnHTML+KA.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
-  else if(st.topic==='mix'){gs.style.display='block';document.getElementById('group-label').textContent='Включить в микс';gt.innerHTML=allBtnHTML+['Хирагана','Катакана','Цифры'].map(r=>`<span class="gtag${st.groups.includes(r)?' on':''}" data-row="${r}" onclick="togGroup('${r}')">${r}</span>`).join('');}
-  else {gs.style.display='none';}
+  const hasGroups=st.topic!=='nums';
+  gs.style.display=hasGroups?'block':'none';
+  if(st.topic==='hira'){document.getElementById('group-label').textContent='Группы знаков';gt.innerHTML=allBtnHTML+H.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
+  else if(st.topic==='kata'){document.getElementById('group-label').textContent='Группы знаков';gt.innerHTML=allBtnHTML+KA.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
+  else if(st.topic==='mix'){document.getElementById('group-label').textContent='Включить в микс';gt.innerHTML=allBtnHTML+['Хирагана','Катакана','Цифры'].map(r=>`<span class="gtag${st.groups.includes(r)?' on':''}" data-row="${r}" onclick="togGroup('${r}')">${r}</span>`).join('');}
   updateAllBtn();
 
   const nds=document.getElementById('num-diff-section');
@@ -573,6 +604,12 @@ function renderCfg(){
     });
   } else {
     nds.style.display='none';
+  }
+
+  // Bottom panel: if no groups shown, use mid→top rounding so it connects to Тема
+  const botPanel=document.querySelector('.sec-panel.bot');
+  if(botPanel){
+    botPanel.style.borderRadius=hasGroups?'0 0 20px 20px':'0 0 20px 20px';
   }
   renderWeak();
 }
@@ -597,12 +634,33 @@ function startSprint(){
   if(!st.topic||!st.modes.length)return;
   st.pool=buildPool();if(!st.pool.length){alert('Нет карточек!');return;}
   st.infinite=document.getElementById('inf-mode').checked;
-  st.cards=shuffle(st.pool).slice(0,st.infinite?st.pool.length:Math.min(st.slen,st.pool.length));
+  if(st.infinite){
+    st.cards=shuffle(st.pool);
+  } else {
+    // Fill requested length, repeating pool if needed
+    const want=st.slen;
+    let deck=[];
+    while(deck.length<want){
+      const portion=shuffle(st.pool);
+      // Avoid immediate repeat at the seam: if last card of deck equals first of new portion, swap
+      if(deck.length&&portion.length>1&&sameCard(deck[deck.length-1],portion[0])){
+        [portion[0],portion[1]]=[portion[1],portion[0]];
+      }
+      deck=deck.concat(portion);
+    }
+    st.cards=deck.slice(0,want);
+  }
   st.idx=0;st.ok=0;st.fail=0;st.mistakes=[];st.answered=false;st.streak=0;st.bestStreak=0;st.totalShown=0;
   showScreen('s-sprint');
   document.getElementById('inf-indicator').style.display=st.infinite?'flex':'none';
   document.getElementById('prog-bar').style.display=st.infinite?'none':'block';
   updateStreak();renderCard();
+}
+function sameCard(a,b){
+  if(!a||!b)return false;
+  if(a.char&&b.char)return a.char===b.char;
+  if(a.num!=null&&b.num!=null)return a.num===b.num;
+  return false;
 }
 
 function updateStreak(){const el=document.getElementById('streak-el');if(st.streak>=3){el.style.display='inline-flex';document.getElementById('streak-num').textContent=st.streak;}else el.style.display='none';}
