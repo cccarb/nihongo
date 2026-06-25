@@ -65,7 +65,7 @@ body { overflow-x: hidden; }
 .mbtn { flex: 1; min-width: calc(50% - 4px); padding: 11px 10px; border-radius: 14px; background: var(--surface); border: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .18s; text-align: left; box-shadow: var(--shadow-card); }
 @media (max-width: 340px) { .mbtn { min-width: 100%; } }
 .mbtn h4 { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 2px; }
-.mbtn p { font-size: 11px; color: var(--text3); line-height: 1.3; }
+.mbtn p { font-size: 12px; color: var(--text3); line-height: 1.3; font-family: 'Noto Sans JP', 'Inter', sans-serif; }
 .mbtn.on { background: var(--accent); border-color: var(--accent); box-shadow: none; }
 .mbtn.on h4 { color: var(--accent-text); }
 .mbtn.on p { color: var(--accent-text); opacity: .6; }
@@ -130,7 +130,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 .rsl { font-size: 12px; color: var(--text2); margin-top: 2px; font-weight: 500; }
 .mrow2 { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .mrow2:last-child { border-bottom: none; }
-.mc { font-family: 'Noto Sans JP', sans-serif; font-size: 1.4rem; font-weight: 700; min-width: 50px; color: var(--text); word-break: break-all; }
+.mc { font-family: 'Noto Sans JP', sans-serif; font-size: 1.4rem; font-weight: 700; min-width: 75px; color: var(--text); word-break: break-all; line-height: 1.2; }
 .mi { font-size: 13px; color: var(--text2); line-height: 1.4; word-break: break-all; } .mi b { color: var(--text); }
 .hrow { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 6px; }
 .hrow:last-child { border-bottom: none; }
@@ -199,7 +199,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
   </div>
   <div class="tabs">
     <div class="tab on" onclick="swTab('train')">Тренировка</div>
-    <div class="tab" onclick="swTab('alpha')">Алфавит</div>
+    <div class="tab" onclick="swTab('alpha')">Материалы</div>
     <div class="tab" onclick="swTab('stats')">Статистика</div>
   </div>
 
@@ -228,6 +228,10 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
         <div class="toggle-row">
           <div><div class="toggle-label">Бесконечный режим</div><div class="toggle-sub">Карточки идут непрерывно</div></div>
           <label class="toggle"><input type="checkbox" id="inf-mode" onchange="toggleInfMode()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Хард-режим</div><div class="toggle-sub">Ввод звука вручную вместо 4 вариантов</div></div>
+          <label class="toggle"><input type="checkbox" id="hard-mode"><span class="toggle-slider"></span></label>
         </div>
         <div id="sprint-len-row" class="toggle-row" style="border-bottom:none">
           <div class="toggle-label">Карточек в спринте</div>
@@ -291,8 +295,8 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 
 </div>
 <script>
-const H=[{row:'Гласные',chars:[['あ','а'],['い','и'],['う','у'],['え','э'],['お','о']]},{row:'К',chars:[['か','ка'],['き','ки'],['く','ку'],['け','кэ'],['こ','ко']]},{row:'С',chars:[['さ','са'],['し','си'],['す','су'],['せ','сэ'],['そ','со']]},{row:'Т',chars:[['た','та'],['ち','чи'],['つ','цу'],['て','тэ'],['と','то']]},{row:'Н',chars:[['な','на'],['に','ни'],['ぬ','ну'],['ね','нэ'],['の','но']]},{row:'Х',chars:[['は','ха'],['ひ','хи'],['ふ','фу'],['へ','хэ'],['ほ','хо']]},{row:'М',chars:[['ま','ма'],['み','ми'],['む','му'],['め','мэ'],['も','мо']]},{row:'Я',chars:[['や','я'],['ゆ','ю'],['よ','ё']]},{row:'Р',chars:[['ら','ра'],['り','ри'],['る','ру'],['れ','рэ'],['ろ','ро']]},{row:'В',chars:[['わ','ва'],['を','во']]},{row:'Н(нос.)',chars:[['ん','н']]},{row:'Дакутэн',chars:[['が','га'],['ぎ','ги'],['ぐ','гу'],['げ','гэ'],['ご','го'],['ざ','за'],['じ','дзи'],['ず','дзу'],['ぜ','зэ'],['ぞ','зо'],['だ','да'],['で','дэ'],['ど','до'],['ば','ба'],['び','би'],['ぶ','бу'],['べ','бэ'],['ぼ','бо'],['ぱ','па'],['ぴ','пи'],['ぷ','пу'],['ぺ','пэ'],['ぽ','по']]}];
-const KA=[{row:'Гласные',chars:[['ア','а'],['イ','и'],['ウ','у'],['エ','э'],['オ','о']]},{row:'К',chars:[['カ','ка'],['キ','ки'],['ク','ку'],['ケ','кэ'],['コ','ко']]},{row:'С',chars:[['サ','са'],['シ','си'],['ス','су'],['セ','сэ'],['ソ','со']]},{row:'Т',chars:[['タ','та'],['チ','чи'],['ツ','цу'],['テ','тэ'],['ト','то']]},{row:'Н',chars:[['ナ','на'],['ニ','ни'],['ヌ','ну'],['ネ','нэ'],['ノ','но']]},{row:'Х',chars:[['ハ','ха'],['ヒ','хи'],['フ','фу'],['ヘ','хэ'],['ホ','хо']]},{row:'М',chars:[['マ','ма'],['ミ','ми'],['ム','му'],['メ','мэ'],['モ','мо']]},{row:'Я',chars:[['ヤ','я'],['ユ','ю'],['ヨ','ё']]},{row:'Р',chars:[['ラ','ра'],['リ','ри'],['ル','ру'],['レ','рэ'],['ロ','ро']]},{row:'В',chars:[['ワ','ва'],['ヲ','во']]},{row:'Н(нос.)',chars:[['ン','н']]}];
+const H=[{row:'Гласные',chars:[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o']]},{row:'К',chars:[['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko']]},{row:'С',chars:[['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so']]},{row:'Т',chars:[['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to']]},{row:'Н',chars:[['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no']]},{row:'Х',chars:[['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho']]},{row:'М',chars:[['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo']]},{row:'Я',chars:[['や','ya'],['ゆ','yu'],['よ','yo']]},{row:'Р',chars:[['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro']]},{row:'В',chars:[['わ','wa'],['を','wo']]},{row:'Н(нос.)',chars:[['ん','n']]},{row:'Дакутэн',chars:[['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],['だ','da'],['で','de'],['ど','do'],['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po']]}];
+const KA=[{row:'Гласные',chars:[['ア','a'],['イ','i'],['ウ','u'],['エ','e'],['オ','o']]},{row:'К',chars:[['カ','ka'],['キ','ki'],['ク','ku'],['ケ','ke'],['コ','ko']]},{row:'С',chars:[['サ','sa'],['シ','shi'],['ス','su'],['セ','se'],['ソ','so']]},{row:'Т',chars:[['タ','ta'],['チ','chi'],['ツ','tsu'],['テ','te'],['ト','to']]},{row:'Н',chars:[['ナ','na'],['ニ','ni'],['ヌ','nu'],['ネ','ne'],['ノ','no']]},{row:'Х',chars:[['ハ','ha'],['ヒ','hi'],['フ','fu'],['ヘ','he'],['ホ','ho']]},{row:'М',chars:[['マ','ma'],['ミ','mi'],['ム','mu'],['メ','me'],['モ','mo']]},{row:'Я',chars:[['ヤ','ya'],['ユ','yu'],['ヨ','yo']]},{row:'Р',chars:[['ラ','ra'],['リ','ri'],['ル','ru'],['レ','re'],['ロ','ro']]},{row:'В',chars:[['ワ','wa'],['ヲ','wo']]},{row:'Н(нос.)',chars:[['ン','n']]}];
 
 // ============ NUMBERS ============
 const DIGITS=['','いち','に','さん','し','ご','ろく','しち','はち','きゅう'];
@@ -352,20 +356,39 @@ function ruReading(n){
 }
 
 const TOPICS=[{id:'hira',label:'Хирагана',icon:'あ',cls:'hp',hg:true},{id:'kata',label:'Катакана',icon:'ア',cls:'kp',hg:true},{id:'nums',label:'Цифры',icon:'1',cls:'np',hg:false},{id:'mix',label:'Микс',icon:'∞',cls:'mp',hg:false}];
-const MODE_GROUPS={hira:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'},{id:'draw',label:'Написание ✍︎',desc:'Пока только для あ (тест)'}],kata:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → выберите чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → выберите знак'}],nums:[{id:'num2jp',label:'Цифра → JP',desc:'Число → по-японски'},{id:'jp2num',label:'JP → Цифра',desc:'Японское → цифра'}],mix:[{id:'char2sound',label:'Знак → Звук',desc:'Знак → чтение'},{id:'sound2char',label:'Звук → Знак',desc:'Чтение → знак'},{id:'num2jp',label:'Цифра → JP',desc:'Число → JP'},{id:'jp2num',label:'JP → Цифра',desc:'JP → цифра'}]};
+const MODE_GROUPS={hira:[{id:'char2sound',label:'Угадай по знаку',desc:'あ → a'},{id:'sound2char',label:'Угадай по звуку',desc:'a → あ'},{id:'draw',label:'Написание ✍︎',desc:'Гласные хираганы'}],kata:[{id:'char2sound',label:'Угадай по знаку',desc:'ア → a'},{id:'sound2char',label:'Угадай по звуку',desc:'a → ア'}],nums:[{id:'num2jp',label:'Угадай по цифре',desc:'5 → ご'},{id:'jp2num',label:'Угадай по чтению',desc:'ご → 5'}],mix:[{id:'char2sound',label:'Угадай по знаку',desc:'あ → a'},{id:'sound2char',label:'Угадай по звуку',desc:'a → あ'},{id:'num2jp',label:'Угадай по цифре',desc:'5 → ご'},{id:'jp2num',label:'Угадай по чтению',desc:'ご → 5'}]};
 
 // ============ STROKE DATA ============
 // Coordinates in 300x300 canvas space.
 // Each stroke has: start [x,y], end [x,y] — used to check position & direction.
 // Form is NOT checked. Only start point proximity (±55px) and direction angle (±50°).
 const STROKE_DATA = {
+  // あ — 3 strokes
   'あ': [
-    // Stroke 1: horizontal line near top, slight tilt down-right (like an equals sign top)
-    { start: [85, 95], end: [215, 95] },
-    // Stroke 2: long vertical curve from top down through the character
-    { start: [155, 55], end: [140, 255] },
-    // Stroke 3: loop from upper-right, curves down-left, around, and back up-right
-    { start: [215, 135], end: [200, 215] }
+    { start: [85, 95], end: [215, 95] },     // 1: horizontal top
+    { start: [155, 55], end: [140, 255] },   // 2: vertical curve through middle
+    { start: [215, 135], end: [200, 215] }   // 3: loop bottom
+  ],
+  // い — 2 strokes
+  'い': [
+    { start: [85, 80], end: [105, 230] },    // 1: long left curve, top to bottom
+    { start: [220, 100], end: [225, 180] }   // 2: short right vertical
+  ],
+  // う — 2 strokes
+  'う': [
+    { start: [105, 80], end: [200, 80] },    // 1: short top tick, left to right
+    { start: [85, 130], end: [180, 240] }    // 2: big curve from upper-left, down and around right
+  ],
+  // え — 2 strokes
+  'え': [
+    { start: [125, 65], end: [180, 75] },    // 1: short top tick
+    { start: [95, 130], end: [225, 240] }    // 2: big zigzag — diagonal down-left then sweep down-right
+  ],
+  // お — 3 strokes
+  'お': [
+    { start: [80, 110], end: [225, 110] },   // 1: horizontal across
+    { start: [140, 60], end: [115, 240] },   // 2: vertical curve through, hooks at bottom
+    { start: [220, 135], end: [240, 175] }   // 3: small tick top-right, short diagonal down
   ]
 };
 
@@ -609,7 +632,16 @@ function renderCard(){
   st.answered=false;
   const m=getModeForCard(c);const qq=document.getElementById('qq');
   const sp=st.cards.map(x=>x.sound).filter(Boolean);const cp=st.cards.map(x=>x.char).filter(Boolean);
-  if(m==='char2sound'){document.getElementById('qhint').textContent='Как читается?';qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.char;renderOpts(c.sound,sp,v=>chkOpt(v,c.sound,c.char+' = '+c.sound,(c.type||st.topic)+':'+c.char),false);}
+  if(m==='char2sound'){
+    document.getElementById('qhint').textContent='Как читается?';
+    qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.char;
+    const hard=document.getElementById('hard-mode')?.checked;
+    if(hard){
+      renderInp(v=>chkRomaji(v,c.sound,c.char+' = '+c.sound,(c.type||st.topic)+':'+c.char));
+    } else {
+      renderOpts(c.sound,sp,v=>chkOpt(v,c.sound,c.char+' = '+c.sound,(c.type||st.topic)+':'+c.char),false);
+    }
+  }
   else if(m==='sound2char'){document.getElementById('qhint').textContent='Выберите знак:';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.sound;renderOpts(c.char,cp,v=>chkOpt(v,c.char,c.sound+' = '+c.char,(c.type||st.topic)+':'+c.char),true);}
   else if(m==='draw'){document.getElementById('qhint').textContent='Напишите знак (звук: '+c.sound+')';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.char;renderDraw(c);}
   else if(m==='num2jp'){document.getElementById('qhint').textContent='Напишите по-японски:';qq.className='qchar';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.num;renderInp(v=>chkInp(v,c.jp,c.ru||[],'nums:'+c.num));}
@@ -703,11 +735,17 @@ function renderDraw(card){
       const dot=(userVec[0]*expVec[0]+userVec[1]*expVec[1])/(userLen*expLen);
       dirOk=dot>=0.82; // cos(35°) ≈ 0.82
     }
-    // 3. Length — stroke must be at least 40% and at most 180% of expected length
-    const lengthOk=userLen>=expLen*0.4&&userLen<=expLen*1.8;
-    // 4. End point proximity — within ±100px of expected end
+    // 3. Length — for short reference strokes (< 80px) allow wider range
+    let lengthOk;
+    if(expLen<80){
+      lengthOk=userLen>=20&&userLen<=expLen*2.5;
+    } else {
+      lengthOk=userLen>=expLen*0.4&&userLen<=expLen*1.8;
+    }
+    // 4. End point proximity — within ±100px of expected end (looser for short strokes)
+    const endTol=expLen<80?160:140;
     const distEnd=Math.hypot(userEnd[0]-expEnd[0],userEnd[1]-expEnd[1]);
-    const endOk=distEnd<=140;
+    const endOk=distEnd<=endTol;
 
     const ok=startOk&&dirOk&&lengthOk&&endOk;
     // Correct strokes keep neutral text color; wrong ones turn red
@@ -841,6 +879,19 @@ function chkOpt(val,cor,full,key){
   updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
 }
 
+// Hard mode: typed romaji answer for char2sound
+function chkRomaji(val,cor,full,key){
+  const v=val.trim().toLowerCase();
+  const ok=v===cor.toLowerCase();
+  const inp=document.getElementById('ainp');if(inp){inp.className='ainp '+(ok?'state-ok':'state-no');inp.disabled=true;}
+  const btn=document.getElementById('chk-btn');if(btn)btn.style.display='none';
+  const rev=document.getElementById('num-reveal');if(rev){rev.style.display='block';rev.className='num-reveal '+(ok?'state-ok':'state-no');rev.textContent=ok?'✓ Верно! '+cor:'✗ Правильно: '+cor;}
+  recChar(key,ok);
+  if(ok){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:st.cards[st.idx],ans:val,cor});st.streak=0;}
+  updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
+  setTimeout(()=>nextCard(),ok?900:1700);
+}
+
 // Num -> JP: user typed japanese
 function chkInp(val,cor,extras,key){
   const v=val.trim().toLowerCase();
@@ -875,7 +926,19 @@ function showResults(){
   const tot=st.ok+st.fail,pct=tot?Math.round(st.ok/tot*100):0;
   document.getElementById('rc').textContent=st.ok;document.getElementById('rw').textContent=st.fail;document.getElementById('rp').textContent=pct+'%';document.getElementById('rbest').textContent=st.bestStreak;
   const ml=document.getElementById('mlist');
-  ml.innerHTML=!st.mistakes.length?'<p style="font-size:14px;color:var(--text2);font-weight:500">Ошибок нет!</p>':st.mistakes.slice(0,20).map(m=>{const q=m.q.char||m.q.jp||m.q.num;return`<div class="mrow2"><span class="mc">${q}</span><span class="mi">Вы: <b>${m.ans}</b> → правильно: <b>${m.cor}</b></span></div>`;}).join('');
+  ml.innerHTML=!st.mistakes.length?'<p style="font-size:14px;color:var(--text2);font-weight:500">Ошибок нет!</p>':st.mistakes.slice(0,20).map(m=>{
+    let display;
+    if(m.q.char){
+      // Kana: show char with reading in parens
+      display=`${m.q.char} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.sound})</span>`;
+    } else if(m.q.jp){
+      // Number JP: show japanese with number
+      display=`${m.q.jp.split('/')[0]} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.num})</span>`;
+    } else {
+      display=m.q.num;
+    }
+    return `<div class="mrow2"><span class="mc">${display}</span><span class="mi">Вы: <b>${m.ans}</b> → правильно: <b>${m.cor}</b></span></div>`;
+  }).join('');
   showScreen('s-result');
 }
 
