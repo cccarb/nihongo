@@ -43,7 +43,7 @@ body { overflow-x: hidden; }
 .jpf { font-family: 'Noto Sans JP', sans-serif; }
 
 /* Section labels — PT Mono */
-.sl { font-family: 'PT Mono', monospace; font-size: 12px; font-weight: 400; color: #818181; letter-spacing: -0.04em; text-transform: lowercase; margin: 1.25rem 0 8px; }
+.sl { font-family: 'PT Mono', monospace; font-size: 12px; font-weight: 400; color: #818181; letter-spacing: -0.04em; text-transform: lowercase; margin: 28px 0 8px; }
 .sl:first-child { margin-top: 0; }
 
 /* Bottom nav tabs */
@@ -226,8 +226,8 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
     <p class="sl">что учим?</p>
     <div class="tgrid" id="tgrid"></div>
     <div id="cfg" style="display:none">
-      <div id="group-section">
-        <p class="sl" id="group-label">знаки</p>
+      <div id="group-section" style="margin-top:28px">
+        <p class="sl" id="group-label" style="margin-top:0">знаки</p>
         <div class="twrap" id="gtags"></div>
         <div id="num-diff-section" style="display:none;margin-top:8px">
           <p class="sl">диапазон чисел</p>
@@ -246,7 +246,10 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
           </label>
         </div>
       </div>
-      <p class="sl">режим</p>
+      <div id="mode-label" style="display:flex;align-items:center;justify-content:space-between;margin:28px 0 8px">
+        <p class="sl" style="margin:0">режим</p>
+        <span id="mode-all-btn" onclick="toggleAllModes()" style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;letter-spacing:-0.04em">выбрать всё</span>
+      </div>
       <div id="mcards"></div>
       <p class="sl">настройки</p>
       <div class="toggle-row">
@@ -264,7 +267,6 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
         </div>
       </div>
       <div style="height:16px"></div>
-      <button class="btn btn-dark" style="width:100%;padding:15px;font-size:16px;border-radius:36px;letter-spacing:-0.04em" onclick="startSprint()">начать →</button>
     </div>
   </div>
 
@@ -272,9 +274,14 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   <div id="tab-stats" style="display:none"><div id="scontent"></div></div>
 </div>
 
+<!-- Fixed start button — shown only when cfg is open -->
+<div id="start-fixed" style="display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);width:calc(100% - 2.5rem);max-width:360px;z-index:99">
+  <button class="btn btn-dark" style="width:100%;padding:15px;font-size:16px;border-radius:36px;letter-spacing:-0.04em" onclick="startSprint()">начать →</button>
+</div>
+
 <div class="screen" id="s-sprint">
   <div class="sh">
-    <button class="btn btn-soft btn-sm" onclick="goHome()">← Выйти</button>
+    <button class="btn btn-soft btn-sm" onclick="exitSprint()">← Выйти</button>
     <div class="spills">
       <span id="inf-indicator" style="display:none" class="inf-badge">∞ <span id="inf-count">0</span></span>
       <span class="sp sok" id="spc">✓ 0</span>
@@ -282,12 +289,22 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       <span class="streak-badge" id="streak-el" style="display:none">🔥<span id="streak-num">0</span></span>
     </div>
   </div>
-  <div class="prog" id="prog-bar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+  <div id="prog-wrap" style="margin-bottom:1.25rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span id="card-counter" style="font-size:12px;color:var(--text2);font-weight:500;letter-spacing:-0.04em"></span>
+    </div>
+    <div class="prog" style="margin-bottom:0"><div class="pfill" id="pfill" style="width:0%"></div></div>
+  </div>
   <div class="qcard">
-    <p class="qhint" id="qhint">Как читается?</p>
+    <p class="qhint" id="qhint">как читается?</p>
     <div id="qq" class="qchar">?</div>
   </div>
   <div id="aarea"></div>
+</div>
+
+<!-- Fixed finish button — only in infinite mode -->
+<div id="finish-fixed" style="display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);width:calc(100% - 2.5rem);max-width:360px;z-index:99">
+  <button class="btn" style="width:100%;padding:15px;font-size:16px;border-radius:36px;letter-spacing:-0.04em;background:#3A3A3C;color:rgba(255,255,255,0.7)" onclick="finishSprint()">завершить спринт</button>
 </div>
 
 <div class="screen" id="s-result">
@@ -393,16 +410,16 @@ const MODE_GROUPS={
     {id:'fmt_type',label:'писать самому',desc:''}
   ],
   nums:[
-    {id:'num2jp',label:'цифра → jp',desc:'5 → ご'},
-    {id:'jp2num',label:'jp → цифра',desc:'ご → 5'},
+    {id:'num2jp',label:'цифра → японский',desc:'5 → ご'},
+    {id:'jp2num',label:'японский → цифра',desc:'ご → 5'},
     {id:'fmt_multi',label:'выбирать из вариантов',desc:''},
     {id:'fmt_type',label:'писать самому',desc:''}
   ],
   mix:[
     {id:'char2sound',label:'угадай по знаку',desc:'あ → a'},
     {id:'sound2char',label:'угадай по звуку',desc:'a → あ'},
-    {id:'num2jp',label:'цифра → jp',desc:'5 → ご'},
-    {id:'jp2num',label:'jp → цифра',desc:'ご → 5'},
+    {id:'num2jp',label:'цифра → японский',desc:'5 → ご'},
+    {id:'jp2num',label:'японский → цифра',desc:'ご → 5'},
     {id:'fmt_multi',label:'выбирать из вариантов',desc:''},
     {id:'fmt_type',label:'писать самому',desc:''}
   ]
@@ -460,8 +477,28 @@ function bKP(g){let p=[];(g&&g.length?KA.filter(r=>g.includes(r.row)):KA).forEac
 let st={topic:null,modes:[],groups:[],slen:15,infinite:false,numMax:10,pool:[],cards:[],idx:0,ok:0,fail:0,mistakes:[],answered:false,streak:0,bestStreak:0,totalShown:0};
 let ctab='train';
 
-const showScreen=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);};
-function goHome(){showScreen('s-home');}
+const showScreen=id=>{
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  // Hide fixed start button when leaving home
+  const startBtn=document.getElementById('start-fixed');
+  if(startBtn)startBtn.style.display=(id==='s-home'&&st.topic)?'block':'none';
+};
+function goHome(){
+  const fb=document.getElementById('finish-fixed');
+  if(fb)fb.style.display='none';
+  showScreen('s-home');
+}
+function exitSprint(){
+  if(!confirm('Точно хочешь выйти? Результаты этого спринта не сохранятся в статистике.'))return;
+  const fb=document.getElementById('finish-fixed');
+  if(fb)fb.style.display='none';
+  showScreen('s-home');
+}
+function finishSprint(){
+  showResults();
+}
 
 function swTab(t){
   ctab=t;
@@ -470,6 +507,8 @@ function swTab(t){
   document.getElementById('tab-train').style.display=t==='train'?'block':'none';
   document.getElementById('tab-alpha').style.display=t==='alpha'?'block':'none';
   document.getElementById('tab-stats').style.display=t==='stats'?'block':'none';
+  const startBtn=document.getElementById('start-fixed');
+  if(startBtn)startBtn.style.display=(t==='train'&&st.topic)?'block':'none';
   if(t==='alpha')renderAlphabet();
   if(t==='stats')renderStats();
 }
@@ -576,26 +615,43 @@ function renderHome(){
     temaPanel.className=cfgVisible?'sec-panel top':'sec-panel top';
     temaPanel.style.borderRadius=cfgVisible?'20px 20px 0 0':'20px 20px 0 0';
   }
-  if(st.topic){document.getElementById('cfg').style.display='block';renderCfg();}
-  else document.getElementById('cfg').style.display='none';
+  if(st.topic){
+    document.getElementById('cfg').style.display='block';
+    document.getElementById('start-fixed').style.display='block';
+    renderCfg();
+  } else {
+    document.getElementById('cfg').style.display='none';
+    document.getElementById('start-fixed').style.display='none';
+  }
 }
 
 function selTopic(id){
   const prev=st.topic;
   st.topic=id;
-  // Groups don't apply to nums — clear them when entering nums
   if(id==='nums')st.groups=[];
-  // Filter modes to those valid for the new topic
   const validIds=(MODE_GROUPS[id]||[]).map(m=>m.id);
   st.modes=st.modes.filter(m=>validIds.includes(m));
   if(!st.modes.length&&validIds.length)st.modes=[validIds[0]];
   document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));
   event.currentTarget.classList.add('on');
   document.getElementById('cfg').style.display='block';
+  document.getElementById('start-fixed').style.display='block';
   renderCfg();
 }
 
-function toggleMode(id){const i=st.modes.indexOf(id);if(i>=0){if(st.modes.length===1)return;st.modes.splice(i,1);}else st.modes.push(id);document.querySelectorAll('.mbtn[data-mid]').forEach(m=>m.classList.toggle('on',st.modes.includes(m.dataset.mid)));}
+function toggleMode(id){
+  const i=st.modes.indexOf(id);
+  if(i>=0){
+    // Don't allow deselecting the last direction mode
+    const dirSelected=st.modes.filter(m=>!m.startsWith('fmt_')&&m!=='draw');
+    const isDir=!id.startsWith('fmt_')&&id!=='draw';
+    if(isDir&&dirSelected.length===1)return;
+    st.modes.splice(i,1);
+  } else {
+    st.modes.push(id);
+  }
+  document.querySelectorAll('.mbtn[data-mid]').forEach(m=>m.classList.toggle('on',st.modes.includes(m.dataset.mid)));
+}
 
 function togGroup(row){const i=st.groups.indexOf(row);i>=0?st.groups.splice(i,1):st.groups.push(row);document.querySelectorAll('.gtag[data-row]').forEach(t=>t.classList.toggle('on',st.groups.includes(t.dataset.row)));updateAllBtn();renderWeak();}
 
@@ -674,13 +730,19 @@ function renderCfg(){
     nds.style.display='none';
   }
   renderWeak();
+  updateModeAllBtn();
 }
-
-// Format is mutually exclusive
 function selectFmt(id){
-  st.modes=st.modes.filter(m=>!m.startsWith('fmt_'));
-  st.modes.push(id);
+  const i=st.modes.indexOf(id);
+  if(i>=0){
+    const fmtSelected=st.modes.filter(m=>m.startsWith('fmt_'));
+    if(fmtSelected.length===1)return;
+    st.modes.splice(i,1);
+  } else {
+    st.modes.push(id);
+  }
   document.querySelectorAll('.mbtn[data-mid]').forEach(m=>m.classList.toggle('on',st.modes.includes(m.dataset.mid)));
+  updateModeAllBtn();
 }
 
 document.getElementById('slen').addEventListener('input',function(){st.slen=+this.value;document.getElementById('slen-out').textContent=this.value;});
@@ -721,8 +783,12 @@ function startSprint(){
   }
   st.idx=0;st.ok=0;st.fail=0;st.mistakes=[];st.answered=false;st.streak=0;st.bestStreak=0;st.totalShown=0;
   showScreen('s-sprint');
-  document.getElementById('inf-indicator').style.display=st.infinite?'flex':'none';
-  document.getElementById('prog-bar').style.display=st.infinite?'none':'block';
+  const infIndicator=document.getElementById('inf-indicator');
+  const progWrap=document.getElementById('prog-wrap');
+  const finishBtn=document.getElementById('finish-fixed');
+  if(infIndicator)infIndicator.style.display=st.infinite?'flex':'none';
+  if(progWrap)progWrap.style.display=st.infinite?'none':'block';
+  if(finishBtn)finishBtn.style.display=st.infinite?'block':'none';
   updateStreak();renderCard();
 }
 function sameCard(a,b){
@@ -732,11 +798,36 @@ function sameCard(a,b){
   return false;
 }
 
+function updateModeAllBtn(){
+  const av=MODE_GROUPS[st.topic]||[];
+  const btn=document.getElementById('mode-all-btn');
+  if(!btn)return;
+  const allOn=av.every(m=>st.modes.includes(m.id));
+  btn.textContent=allOn?'✓ всё':'выбрать всё';
+}
+function toggleAllModes(){
+  const av=MODE_GROUPS[st.topic]||[];
+  const allOn=av.every(m=>st.modes.includes(m.id));
+  if(allOn){
+    const firstDir=av.find(m=>!m.id.startsWith('fmt_')&&m.id!=='draw');
+    const firstFmt=av.find(m=>m.id.startsWith('fmt_'));
+    st.modes=[firstDir?.id,firstFmt?.id].filter(Boolean);
+  } else {
+    st.modes=av.map(m=>m.id);
+  }
+  document.querySelectorAll('.mbtn[data-mid]').forEach(m=>m.classList.toggle('on',st.modes.includes(m.dataset.mid)));
+  updateModeAllBtn();
+}
 function updateStreak(){const el=document.getElementById('streak-el');if(st.streak>=3){el.style.display='inline-flex';document.getElementById('streak-num').textContent=st.streak;}else el.style.display='none';}
 function getDist(cor,pool){return[...new Set(pool.filter(v=>v!==cor))].sort(()=>Math.random()-.5).slice(0,3);}
 
 function getModeForCard(c){
-  const isHardMode=st.modes.includes('fmt_type');
+  const fmtModes=st.modes.filter(m=>m.startsWith('fmt_'));
+  const fmt=fmtModes.length>1
+    ?fmtModes[Math.floor(Math.random()*fmtModes.length)]
+    :(fmtModes[0]||'fmt_multi');
+  const isHardMode=fmt==='fmt_type';
+
   if(c.type==='num'){
     const valid=st.modes.filter(m=>m==='num2jp'||m==='jp2num');
     return valid.length?valid[Math.floor(Math.random()*valid.length)]:'num2jp';
@@ -755,7 +846,11 @@ function getModeForCard(c){
 function renderCard(){
   if(st.infinite&&st.idx>=st.cards.length){st.cards=shuffle(st.pool);st.idx=0;}
   const c=st.cards[st.idx];st.totalShown++;
-  if(!st.infinite)document.getElementById('pfill').style.width=Math.round(st.idx/st.cards.length*100)+'%';
+  if(!st.infinite){
+    document.getElementById('pfill').style.width=Math.round(st.idx/st.cards.length*100)+'%';
+    const counter=document.getElementById('card-counter');
+    if(counter)counter.textContent=(st.idx+1)+' / '+st.cards.length;
+  }
   document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
   if(st.infinite)document.getElementById('inf-count').textContent=st.totalShown;
   st.answered=false;
