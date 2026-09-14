@@ -67,6 +67,8 @@ body { overflow-x: hidden; }
 .tpill .ico { font-size: 1.5rem; display: block; margin-bottom: 5px; line-height: 1; }
 .tpill .lbl { font-size: 14px; font-weight: 500; color: var(--text); letter-spacing: -0.05em; }
 .tpill.on { background: var(--accent-grad); box-shadow: var(--accent-glow); }
+.tpill.wide { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 8px; margin-top: 4px; }
+.tpill.wide .ico { margin-bottom: 0; font-size: 1.1rem; }
 .tpill.on .lbl { color: #fff; }
 
 /* Group tags */
@@ -135,6 +137,8 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .qread { font-size: clamp(1.2rem, 5.5vw, 1.9rem); font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; word-break: break-all; }
 
 .ogrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.ogrid.ogrid-1 { grid-template-columns: 1fr; }
+.ogrid.ogrid-1 .obtn { min-height: 48px; padding: 13px 14px; text-align: left; line-height: 1.3; }
 @media (max-width: 320px) { .ogrid { grid-template-columns: 1fr; } }
 .obtn { padding: 16px 10px; border-radius: 18px; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--text); font-family: 'Noto Sans JP', 'Inter', sans-serif; background: var(--surface); border: 2px solid transparent; display: block; width: 100%; touch-action: manipulation; min-height: 56px; transition: background .18s, border-color .18s; }
 .obtn:not([disabled]):active { transform: scale(.95); }
@@ -226,25 +230,29 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
     <p class="sl">что учим?</p>
     <div class="tgrid" id="tgrid"></div>
     <div id="cfg" style="display:none">
-      <div id="group-section" style="margin-top:28px">
+      <div id="sets-section" style="display:none;margin-top:28px">
+        <p class="sl" id="sets-label" style="margin-top:0">азбука</p>
+        <div class="twrap" id="stags"></div>
+      </div>
+      <div id="group-section" style="margin-top:24px">
         <p class="sl" id="group-label" style="margin-top:0">знаки</p>
         <div class="twrap" id="gtags"></div>
-        <div id="num-diff-section" style="display:none;margin-top:8px">
-          <p class="sl">диапазон чисел</p>
-          <div class="seg" id="num-diff">
-            <button data-d="10" class="on">1–10</button>
-            <button data-d="100">1–100</button>
-            <button data-d="1000">1–1000</button>
-            <button data-d="9999">1–9999</button>
-          </div>
+      </div>
+      <div id="num-diff-section" style="display:none;margin-top:24px">
+        <p class="sl" style="margin-top:0">диапазон чисел</p>
+        <div class="seg" id="num-diff">
+          <button data-d="10" class="on">1–10</button>
+          <button data-d="100">1–100</button>
+          <button data-d="1000">1–1000</button>
+          <button data-d="9999">1–9999</button>
         </div>
-        <div id="warea" style="display:none;margin-top:12px">
-          <p class="sl" style="margin-top:0">слабые знаки</p>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px" id="wchips"></div>
-          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer;letter-spacing:var(--lsp)">
-            <input type="checkbox" id="wonly" style="accent-color:var(--accent);width:16px;height:16px"> тренировать только слабые
-          </label>
-        </div>
+      </div>
+      <div id="warea" style="display:none;margin-top:20px">
+        <p class="sl" id="weak-label" style="margin-top:0">слабые знаки</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px" id="wchips"></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer;letter-spacing:var(--lsp)">
+          <input type="checkbox" id="wonly" style="accent-color:var(--accent);width:16px;height:16px"> тренировать только слабые
+        </label>
       </div>
       <div id="mode-label" style="display:flex;align-items:center;justify-content:space-between;margin:28px 0 8px">
         <p class="sl" style="margin:0">режим</p>
@@ -266,17 +274,13 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
           <span style="font-size:14px;font-weight:500;min-width:24px;color:var(--text);letter-spacing:var(--lsp)" id="slen-out">15</span>
         </div>
       </div>
-      <div style="height:16px"></div>
+      <button class="btn btn-dark" style="width:100%;padding:15px;font-size:16px;border-radius:36px;letter-spacing:-0.04em;margin-top:24px" onclick="startSprint()">начать →</button>
+      <div style="height:8px"></div>
     </div>
   </div>
 
   <div id="tab-alpha" style="display:none"><div id="alpha-content"></div></div>
   <div id="tab-stats" style="display:none"><div id="scontent"></div></div>
-</div>
-
-<!-- Fixed start button — shown only when cfg is open -->
-<div id="start-fixed" style="display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);width:calc(100% - 2.5rem);max-width:360px;z-index:99">
-  <button class="btn btn-dark" style="width:100%;padding:15px;font-size:16px;border-radius:36px;letter-spacing:-0.04em" onclick="startSprint()">начать →</button>
 </div>
 
 <div class="screen" id="s-sprint">
@@ -394,20 +398,219 @@ function ruReading(n){
   return small[n]||[];
 }
 
-const TOPICS=[{id:'hira',label:'Хирагана',icon:'あ',cls:'hp',hg:true},{id:'kata',label:'Катакана',icon:'ア',cls:'kp',hg:true},{id:'nums',label:'Цифры',icon:'1',cls:'np',hg:false},{id:'mix',label:'Микс',icon:'∞',cls:'mp',hg:false}];
+// ============ СЛОВА (Minna no Nihongo) ============
+// l = урок, k = кана, j = кандзи (если есть), r = перевод
+const LESSONS=[{id:1,label:'урок 1'},{id:2,label:'урок 2'},{id:3,label:'урок 3'},{id:'dm',label:'дни недели и месяцы'}];
+const WORDS=[
+  // ---- Урок 1 ----
+  {l:1,k:'わたし',j:'',r:'я'},
+  {l:1,k:'あなた',j:'',r:'вы, ты'},
+  {l:1,k:'あのひと',j:'あの人',r:'он, она'},
+  {l:1,k:'あのかた',j:'あの方',r:'он, она (вежливо)'},
+  {l:1,k:'～さん',j:'',r:'господин, госпожа'},
+  {l:1,k:'～ちゃん',j:'',r:'суффикс к именам детей'},
+  {l:1,k:'～じん',j:'～人',r:'человек (национальность)'},
+  {l:1,k:'せんせい',j:'先生',r:'учитель, преподаватель'},
+  {l:1,k:'きょうし',j:'教師',r:'преподаватель (о себе)'},
+  {l:1,k:'がくせい',j:'学生',r:'студент'},
+  {l:1,k:'かいしゃいん',j:'会社員',r:'служащий фирмы'},
+  {l:1,k:'しゃいん',j:'社員',r:'сотрудник фирмы (～社員)'},
+  {l:1,k:'ぎんこういん',j:'銀行員',r:'служащий банка'},
+  {l:1,k:'いしゃ',j:'医者',r:'врач'},
+  {l:1,k:'けんきゅうしゃ',j:'研究者',r:'исследователь, учёный'},
+  {l:1,k:'だいがく',j:'大学',r:'университет'},
+  {l:1,k:'びょういん',j:'病院',r:'больница'},
+  {l:1,k:'だれ',j:'',r:'кто'},
+  {l:1,k:'どなた',j:'',r:'кто (вежливо)'},
+  {l:1,k:'～さい',j:'～歳',r:'～ лет (о возрасте)'},
+  {l:1,k:'なんさい',j:'何歳',r:'сколько лет?'},
+  {l:1,k:'おいくつ',j:'',r:'сколько лет? (вежливо)'},
+  {l:1,k:'はい',j:'',r:'да'},
+  {l:1,k:'いいえ',j:'',r:'нет'},
+  {l:1,k:'アメリカ',j:'',r:'Америка, США'},
+  {l:1,k:'イギリス',j:'',r:'Англия, Великобритания'},
+  {l:1,k:'インド',j:'',r:'Индия'},
+  {l:1,k:'インドネシア',j:'',r:'Индонезия'},
+  {l:1,k:'かんこく',j:'韓国',r:'Южная Корея'},
+  {l:1,k:'タイ',j:'',r:'Таиланд'},
+  {l:1,k:'ちゅうごく',j:'中国',r:'Китай'},
+  {l:1,k:'ドイツ',j:'',r:'Германия'},
+  {l:1,k:'にほん',j:'日本',r:'Япония'},
+  {l:1,k:'ブラジル',j:'',r:'Бразилия'},
+  // ---- Урок 2 ----
+  {l:2,k:'これ',j:'',r:'это (ближе к говорящему)'},
+  {l:2,k:'それ',j:'',r:'это, то (ближе к собеседнику)'},
+  {l:2,k:'あれ',j:'',r:'то (далеко от обоих)'},
+  {l:2,k:'この～',j:'',r:'этот'},
+  {l:2,k:'その～',j:'',r:'этот, тот (у собеседника)'},
+  {l:2,k:'あの～',j:'',r:'тот'},
+  {l:2,k:'ほん',j:'本',r:'книга'},
+  {l:2,k:'じしょ',j:'辞書',r:'словарь'},
+  {l:2,k:'ざっし',j:'雑誌',r:'журнал'},
+  {l:2,k:'しんぶん',j:'新聞',r:'газета'},
+  {l:2,k:'ノート',j:'',r:'тетрадь'},
+  {l:2,k:'てちょう',j:'手帳',r:'записная книжка, блокнот'},
+  {l:2,k:'めいし',j:'名刺',r:'визитная карточка'},
+  {l:2,k:'カード',j:'',r:'карта, карточка'},
+  {l:2,k:'えんぴつ',j:'鉛筆',r:'карандаш'},
+  {l:2,k:'ボールペン',j:'',r:'шариковая ручка'},
+  {l:2,k:'シャープペンシル',j:'',r:'автоматический карандаш'},
+  {l:2,k:'かぎ',j:'',r:'ключ'},
+  {l:2,k:'とけい',j:'時計',r:'часы'},
+  {l:2,k:'かさ',j:'傘',r:'зонт'},
+  {l:2,k:'かばん',j:'',r:'портфель, кейс'},
+  {l:2,k:'テレビ',j:'',r:'телевизор'},
+  {l:2,k:'ラジオ',j:'',r:'радио'},
+  {l:2,k:'カメラ',j:'',r:'фотоаппарат'},
+  {l:2,k:'コンピューター',j:'',r:'компьютер'},
+  {l:2,k:'くるま',j:'車',r:'автомобиль'},
+  {l:2,k:'つくえ',j:'机',r:'стол, письменный стол'},
+  {l:2,k:'いす',j:'',r:'стул'},
+  {l:2,k:'チョコレート',j:'',r:'шоколад'},
+  {l:2,k:'コーヒー',j:'',r:'кофе'},
+  {l:2,k:'おみやげ',j:'お土産',r:'сувенир, подарок'},
+  {l:2,k:'えいご',j:'英語',r:'английский язык'},
+  {l:2,k:'にほんご',j:'日本語',r:'японский язык'},
+  {l:2,k:'～ご',j:'～語',r:'～ язык'},
+  {l:2,k:'なん',j:'何',r:'что?'},
+  {l:2,k:'そう',j:'',r:'так'},
+  // ---- Урок 3 ----
+  {l:3,k:'ここ',j:'',r:'здесь (ближе к говорящему)'},
+  {l:3,k:'そこ',j:'',r:'там (ближе к собеседнику)'},
+  {l:3,k:'あそこ',j:'',r:'там (далеко от обоих)'},
+  {l:3,k:'どこ',j:'',r:'где'},
+  {l:3,k:'こちら',j:'',r:'здесь, сюда (вежливо)'},
+  {l:3,k:'そちら',j:'',r:'там, туда (вежливо)'},
+  {l:3,k:'あちら',j:'',r:'там, туда — далеко (вежливо)'},
+  {l:3,k:'どちら',j:'',r:'где, куда (вежливо)'},
+  {l:3,k:'きょうしつ',j:'教室',r:'аудитория, класс'},
+  {l:3,k:'しょくどう',j:'食堂',r:'столовая'},
+  {l:3,k:'じむしょ',j:'事務所',r:'контора, офис'},
+  {l:3,k:'かいぎしつ',j:'会議室',r:'зал заседаний'},
+  {l:3,k:'うけつけ',j:'受付',r:'приёмная, ресепшен'},
+  {l:3,k:'ロビー',j:'',r:'вестибюль, холл'},
+  {l:3,k:'へや',j:'部屋',r:'комната'},
+  {l:3,k:'トイレ',j:'',r:'туалет'},
+  {l:3,k:'おてあらい',j:'お手洗い',r:'туалет (вежливо)'},
+  {l:3,k:'かいだん',j:'階段',r:'лестница'},
+  {l:3,k:'エレベーター',j:'',r:'лифт'},
+  {l:3,k:'エスカレーター',j:'',r:'эскалатор'},
+  {l:3,k:'じどうはんばいき',j:'自動販売機',r:'торговый автомат'},
+  {l:3,k:'でんわ',j:'電話',r:'телефон'},
+  {l:3,k:'おくに',j:'お国',r:'страна'},
+  {l:3,k:'かいしゃ',j:'会社',r:'компания, фирма'},
+  {l:3,k:'うち',j:'',r:'дом'},
+  {l:3,k:'くつ',j:'靴',r:'обувь, туфли'},
+  {l:3,k:'ネクタイ',j:'',r:'галстук'},
+  {l:3,k:'ワイン',j:'',r:'вино'},
+  {l:3,k:'うりば',j:'売り場',r:'прилавок, отдел'},
+  {l:3,k:'ちか',j:'地下',r:'подвальный этаж'},
+  {l:3,k:'～かい',j:'～階',r:'～-й этаж'},
+  {l:3,k:'なんがい',j:'何階',r:'какой этаж?'},
+  {l:3,k:'～えん',j:'～円',r:'～ иен'},
+  {l:3,k:'いくら',j:'',r:'сколько стоит'},
+  {l:3,k:'ひゃく',j:'百',r:'сто'},
+  {l:3,k:'せん',j:'千',r:'тысяча'},
+  {l:3,k:'まん',j:'万',r:'десять тысяч'},
+  {l:3,k:'イタリア',j:'',r:'Италия'},
+  {l:3,k:'スイス',j:'',r:'Швейцария'},
+  {l:3,k:'フランス',j:'',r:'Франция'},
+  {l:3,k:'ジャカルタ',j:'',r:'Джакарта'},
+  {l:3,k:'バンコク',j:'',r:'Бангкок'},
+  {l:3,k:'ベルリン',j:'',r:'Берлин'},
+  // ---- Дни недели и месяцы ----
+  {l:'dm',k:'げつようび',j:'月曜日',r:'понедельник'},
+  {l:'dm',k:'かようび',j:'火曜日',r:'вторник'},
+  {l:'dm',k:'すいようび',j:'水曜日',r:'среда'},
+  {l:'dm',k:'もくようび',j:'木曜日',r:'четверг'},
+  {l:'dm',k:'きんようび',j:'金曜日',r:'пятница'},
+  {l:'dm',k:'どようび',j:'土曜日',r:'суббота'},
+  {l:'dm',k:'にちようび',j:'日曜日',r:'воскресенье'},
+  {l:'dm',k:'なんようび',j:'何曜日',r:'какой день недели?'},
+  {l:'dm',k:'いちがつ',j:'一月',r:'январь'},
+  {l:'dm',k:'にがつ',j:'二月',r:'февраль'},
+  {l:'dm',k:'さんがつ',j:'三月',r:'март'},
+  {l:'dm',k:'しがつ',j:'四月',r:'апрель'},
+  {l:'dm',k:'ごがつ',j:'五月',r:'май'},
+  {l:'dm',k:'ろくがつ',j:'六月',r:'июнь'},
+  {l:'dm',k:'しちがつ',j:'七月',r:'июль'},
+  {l:'dm',k:'はちがつ',j:'八月',r:'август'},
+  {l:'dm',k:'くがつ',j:'九月',r:'сентябрь'},
+  {l:'dm',k:'じゅうがつ',j:'十月',r:'октябрь'},
+  {l:'dm',k:'じゅういちがつ',j:'十一月',r:'ноябрь'},
+  {l:'dm',k:'じゅうにがつ',j:'十二月',r:'декабрь'},
+  {l:'dm',k:'なんがつ',j:'何月',r:'какой месяц?'}
+];
+const KLESSONS=[{id:1,label:'урок 1'},{id:2,label:'урок 2'},{id:3,label:'урок 3'},{id:4,label:'урок 4'}];
+const KANJI=[
+  // ---- Урок 1 ----
+  {l:1,c:'日',m:'солнце, день'},
+  {l:1,c:'月',m:'луна, месяц'},
+  {l:1,c:'木',m:'дерево'},
+  {l:1,c:'山',m:'гора'},
+  {l:1,c:'川',m:'река'},
+  {l:1,c:'田',m:'рисовое поле'},
+  {l:1,c:'人',m:'человек, личность'},
+  {l:1,c:'口',m:'рот'},
+  {l:1,c:'車',m:'автомобиль'},
+  {l:1,c:'門',m:'ворота'},
+  // ---- Урок 2 ----
+  {l:2,c:'火',m:'огонь'},
+  {l:2,c:'水',m:'вода'},
+  {l:2,c:'金',m:'золото, деньги, металл'},
+  {l:2,c:'土',m:'земля'},
+  {l:2,c:'子',m:'ребёнок'},
+  {l:2,c:'女',m:'женщина'},
+  {l:2,c:'学',m:'учиться'},
+  {l:2,c:'生',m:'жизнь, рождение'},
+  {l:2,c:'先',m:'впереди, предыдущий'},
+  {l:2,c:'私',m:'я, личный, частный'},
+  // ---- Урок 3 ----
+  {l:3,c:'一',m:'один'},
+  {l:3,c:'二',m:'два'},
+  {l:3,c:'三',m:'три'},
+  {l:3,c:'四',m:'четыре'},
+  {l:3,c:'五',m:'пять'},
+  {l:3,c:'六',m:'шесть'},
+  {l:3,c:'七',m:'семь'},
+  {l:3,c:'八',m:'восемь'},
+  {l:3,c:'九',m:'девять'},
+  {l:3,c:'十',m:'десять'},
+  {l:3,c:'百',m:'сто'},
+  {l:3,c:'千',m:'тысяча'},
+  {l:3,c:'万',m:'десять тысяч, всё'},
+  {l:3,c:'円',m:'иена, круг'},
+  {l:3,c:'年',m:'год, возраст'},
+  // ---- Урок 4 ----
+  {l:4,c:'上',m:'верх'},
+  {l:4,c:'下',m:'низ'},
+  {l:4,c:'中',m:'середина'},
+  {l:4,c:'大',m:'большой'},
+  {l:4,c:'小',m:'маленький'},
+  {l:4,c:'本',m:'книга, основа'},
+  {l:4,c:'半',m:'половина'},
+  {l:4,c:'分',m:'доля, минута'},
+  {l:4,c:'力',m:'сила, способности'},
+  {l:4,c:'何',m:'что'}
+];
+const KANA_SETS=[{id:'hira',label:'хирагана'},{id:'kata',label:'катакана'}];
+
+const TOPICS=[{id:'kana',label:'Азбука',icon:'あ',cls:'hp',jp:true},{id:'nums',label:'Цифры',icon:'1',cls:'np'},{id:'words',label:'Слова',icon:'語',cls:'kp',jp:true},{id:'kanji',label:'Кандзи',icon:'漢',cls:'kj',jp:true},{id:'mix',label:'Микс',icon:'∞',cls:'mp',wide:true}];
 const MODE_GROUPS={
-  hira:[
+  kana:[
     {id:'char2sound',label:'угадай по знаку',desc:'あ → a'},
     {id:'sound2char',label:'угадай по звуку',desc:'a → あ'},
     {id:'fmt_multi',label:'выбирать из вариантов',desc:''},
     {id:'fmt_type',label:'писать самому',desc:''},
     {id:'draw',label:'написание ✍︎',desc:'гласные хираганы'}
   ],
-  kata:[
-    {id:'char2sound',label:'угадай по знаку',desc:'ア → a'},
-    {id:'sound2char',label:'угадай по звуку',desc:'a → ア'},
-    {id:'fmt_multi',label:'выбирать из вариантов',desc:''},
-    {id:'fmt_type',label:'писать самому',desc:''}
+  words:[
+    {id:'ru2jp',label:'русский → японский',desc:'книга → ほん'},
+    {id:'jp2ru',label:'японский → русский',desc:'ほん → книга'}
+  ],
+  kanji:[
+    {id:'k2mean',label:'кандзи → значение',desc:'山 → гора'},
+    {id:'mean2k',label:'значение → кандзи',desc:'гора → 山'}
   ],
   nums:[
     {id:'num2jp',label:'цифра → японский',desc:'5 → ご'},
@@ -474,16 +677,13 @@ function getCharStat(topic,ch){const d=ld();const k=topic+':'+ch;if(!d.cs[k])ret
 function bHP(g){let p=[];(g&&g.length?H.filter(r=>g.includes(r.row)):H).forEach(r=>r.chars.forEach(c=>p.push({type:'hira',char:c[0],sound:c[1]})));return p;}
 function bKP(g){let p=[];(g&&g.length?KA.filter(r=>g.includes(r.row)):KA).forEach(r=>r.chars.forEach(c=>p.push({type:'kata',char:c[0],sound:c[1]})));return p;}
 
-let st={topic:null,modes:[],groups:[],slen:15,infinite:false,numMax:10,pool:[],cards:[],idx:0,ok:0,fail:0,mistakes:[],answered:false,streak:0,bestStreak:0,totalShown:0};
+let st={topic:null,modes:[],groups:[],kanaSets:['hira'],lessons:[1],klessons:[1],slen:15,infinite:false,numMax:10,pool:[],cards:[],idx:0,ok:0,fail:0,mistakes:[],answered:false,streak:0,bestStreak:0,totalShown:0};
 let ctab='train';
 
 const showScreen=id=>{
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  // Hide fixed start button when leaving home
-  const startBtn=document.getElementById('start-fixed');
-  if(startBtn)startBtn.style.display=(id==='s-home'&&st.topic)?'block':'none';
 };
 function goHome(){
   const fb=document.getElementById('finish-fixed');
@@ -507,8 +707,6 @@ function swTab(t){
   document.getElementById('tab-train').style.display=t==='train'?'block':'none';
   document.getElementById('tab-alpha').style.display=t==='alpha'?'block':'none';
   document.getElementById('tab-stats').style.display=t==='stats'?'block':'none';
-  const startBtn=document.getElementById('start-fixed');
-  if(startBtn)startBtn.style.display=(t==='train'&&st.topic)?'block':'none';
   if(t==='alpha')renderAlphabet();
   if(t==='stats')renderStats();
 }
@@ -518,7 +716,7 @@ function renderStats(){
   if(!d.sp.length){el.innerHTML='<p style="font-size:14px;color:var(--text2);padding:1rem 0;font-weight:500">Ещё нет истории. Пройдите первый спринт!</p>';return;}
   const tok=d.sp.reduce((s,x)=>s+x.c,0),tfl=d.sp.reduce((s,x)=>s+x.w,0),pct=Math.round(tok/(tok+tfl)*100);
   const wall=Object.entries(d.cs).map(([k,v])=>({char:k.split(':')[1],tot:v.ok+v.f,rate:v.ok/(v.ok+v.f)})).filter(x=>x.tot>=2&&x.rate<.75).sort((a,b)=>a.rate-b.rate).slice(0,12);
-  const tN={hira:'Хирагана',kata:'Катакана',nums:'Цифры',mix:'Микс'};
+  const tN={kana:'Азбука',hira:'Хирагана',kata:'Катакана',nums:'Цифры',words:'Слова',kanji:'Кандзи',mix:'Микс'};
   el.innerHTML=`<div class="rstats"><div class="rs"><div class="rsv">${d.sp.length}</div><div class="rsl">Спринтов</div></div><div class="rs"><div class="rsv">${tok+tfl}</div><div class="rsl">Ответов</div></div><div class="rs"><div class="rsv">${pct}%</div><div class="rsl">Точность</div></div></div>
   ${wall.length?`<p class="sl">Слабые знаки</p><div class="surface-card" style="padding:1rem"><div style="display:flex;flex-wrap:wrap;gap:6px">${wall.map(w=>`<span style="padding:5px 12px;border-radius:50px;background:var(--no-bg);color:var(--no-text);font-size:13px;font-weight:600;font-family:'Noto Sans JP',sans-serif">${w.char} <span style="font-size:11px;opacity:.7">${Math.round(w.rate*100)}%</span></span>`).join('')}</div></div>`:''}
   <p class="sl">История</p><div class="surface-card" style="padding:.75rem 1.25rem">${[...d.sp].reverse().slice(0,10).map(s=>{const dt=new Date(s.t),ds=dt.toLocaleDateString('ru',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),p=Math.round(s.c/(s.c+s.w)*100);return`<div class="hrow"><span class="hd">${ds}</span><span class="ht">${tN[s.topic]||s.topic}</span><span class="pp ${p>=80?'phi':p>=50?'pmi':'plo'}">${p}%</span></div>`;}).join('')}</div>
@@ -607,7 +805,7 @@ function toggleInfMode(){
 }
 
 function renderHome(){
-  document.getElementById('tgrid').innerHTML=TOPICS.map(t=>`<div class="tpill ${t.cls}${st.topic===t.id?' on':''}" onclick="selTopic('${t.id}')"><span class="ico">${t.id==='hira'||t.id==='kata'?`<span class="jpf">${t.icon}</span>`:t.icon}</span><span class="lbl">${t.label}</span></div>`).join('');
+  document.getElementById('tgrid').innerHTML=TOPICS.map(t=>`<div class="tpill ${t.cls}${t.wide?' wide':''}${st.topic===t.id?' on':''}" onclick="selTopic('${t.id}')"><span class="ico">${t.jp?`<span class="jpf">${t.icon}</span>`:t.icon}</span><span class="lbl">${t.label}</span></div>`).join('');
   const cfgVisible=!!st.topic;
   // Adjust Тема panel rounding
   const temaPanel=document.querySelector('#tab-train .sec-panel');
@@ -617,25 +815,21 @@ function renderHome(){
   }
   if(st.topic){
     document.getElementById('cfg').style.display='block';
-    document.getElementById('start-fixed').style.display='block';
     renderCfg();
   } else {
     document.getElementById('cfg').style.display='none';
-    document.getElementById('start-fixed').style.display='none';
   }
 }
 
 function selTopic(id){
-  const prev=st.topic;
+  if(st.topic!==id)st.groups=[];
   st.topic=id;
-  if(id==='nums')st.groups=[];
   const validIds=(MODE_GROUPS[id]||[]).map(m=>m.id);
   st.modes=st.modes.filter(m=>validIds.includes(m));
   if(!st.modes.length&&validIds.length)st.modes=[validIds[0]];
   document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));
   event.currentTarget.classList.add('on');
   document.getElementById('cfg').style.display='block';
-  document.getElementById('start-fixed').style.display='block';
   renderCfg();
 }
 
@@ -655,11 +849,41 @@ function toggleMode(id){
 
 function togGroup(row){const i=st.groups.indexOf(row);i>=0?st.groups.splice(i,1):st.groups.push(row);document.querySelectorAll('.gtag[data-row]').forEach(t=>t.classList.toggle('on',st.groups.includes(t.dataset.row)));updateAllBtn();renderWeak();}
 
+function kanaRows(){
+  const sets=st.kanaSets.length?st.kanaSets:['hira'];
+  const rows=[];
+  if(sets.includes('hira'))H.forEach(r=>{if(!rows.includes(r.row))rows.push(r.row)});
+  if(sets.includes('kata'))KA.forEach(r=>{if(!rows.includes(r.row))rows.push(r.row)});
+  return rows;
+}
 function getAllRowsForTopic(){
-  if(st.topic==='hira')return H.map(r=>r.row);
-  if(st.topic==='kata')return KA.map(r=>r.row);
+  if(st.topic==='kana')return kanaRows();
   if(st.topic==='mix')return['Хирагана','Катакана','Цифры'];
   return [];
+}
+function togSet(id){
+  const i=st.kanaSets.indexOf(id);
+  if(i>=0){if(st.kanaSets.length===1)return;st.kanaSets.splice(i,1);}
+  else st.kanaSets.push(id);
+  const valid=kanaRows();
+  st.groups=st.groups.filter(g=>valid.includes(g));
+  renderCfg();
+}
+function curLessonDefs(){return st.topic==='kanji'?KLESSONS:LESSONS;}
+function curLessons(){return st.topic==='kanji'?st.klessons:st.lessons;}
+function togLesson(l){
+  const a=curLessons();
+  const i=a.indexOf(l);
+  if(i>=0){if(a.length===1)return;a.splice(i,1);}
+  else a.push(l);
+  renderCfg();
+}
+function toggleAllLessons(){
+  const defs=curLessonDefs(),a=curLessons();
+  const allOn=defs.every(l=>a.includes(l.id));
+  const next=allOn?[defs[0].id]:defs.map(l=>l.id);
+  if(st.topic==='kanji')st.klessons=next;else st.lessons=next;
+  renderCfg();
 }
 function toggleAllGroups(){
   const all=getAllRowsForTopic();
@@ -677,9 +901,15 @@ function updateAllBtn(){
 }
 
 function renderWeak(){
-  if(!st.topic||st.topic==='nums'||st.topic==='mix'){document.getElementById('warea').style.display='none';return;}
-  const w=weakChars(st.topic);if(!w.length){document.getElementById('warea').style.display='none';return;}
-  document.getElementById('warea').style.display='block';
+  const wa=document.getElementById('warea');
+  let w=[];
+  if(st.topic==='kana')w=[...weakChars('hira',8),...weakChars('kata',8)].sort((a,b)=>a.rate-b.rate).slice(0,8);
+  else if(st.topic==='words')w=weakChars('word',8);
+  else if(st.topic==='kanji')w=weakChars('kanji',8);
+  else {wa.style.display='none';return;}
+  document.getElementById('weak-label').textContent=st.topic==='words'?'слабые слова':st.topic==='kanji'?'слабые кандзи':'слабые знаки';
+  if(!w.length){wa.style.display='none';return;}
+  wa.style.display='block';
   document.getElementById('wchips').innerHTML=w.map(x=>`<span style="padding:5px 12px;border-radius:50px;background:var(--no-bg);color:var(--no-text);font-size:13px;font-weight:600;font-family:'Noto Sans JP',sans-serif">${x.char} <span style="font-size:11px;opacity:.7">${Math.round(x.rate*100)}%</span></span>`).join('');
 }
 
@@ -695,8 +925,10 @@ function renderCfg(){
   // Init defaults
   const hasDirSelected=st.modes.some(m=>dirModes.find(d=>d.id===m));
   if(!hasDirSelected&&dirModes.length)st.modes=[...st.modes,dirModes[0].id];
-  const hasFmtSelected=st.modes.some(m=>m.startsWith('fmt_'));
-  if(!hasFmtSelected)st.modes=[...st.modes,'fmt_multi'];
+  if(fmtModes.length){
+    const hasFmtSelected=st.modes.some(m=>m.startsWith('fmt_'));
+    if(!hasFmtSelected)st.modes=[...st.modes,'fmt_multi'];
+  }
 
   let html='';
   if(dirModes.length){
@@ -710,12 +942,26 @@ function renderCfg(){
   }
   document.getElementById('mcards').innerHTML=html;
 
+  // --- верхняя секция: азбука / уроки ---
+  const ss=document.getElementById('sets-section'),stg=document.getElementById('stags');
+  if(st.topic==='kana'){
+    ss.style.display='block';
+    document.getElementById('sets-label').textContent='азбука';
+    stg.innerHTML=KANA_SETS.map(k=>`<span class="gtag${st.kanaSets.includes(k.id)?' on':''}" onclick="togSet('${k.id}')">${k.label}</span>`).join('');
+  } else if(st.topic==='words'||st.topic==='kanji'){
+    ss.style.display='block';
+    document.getElementById('sets-label').textContent=st.topic==='kanji'?'уроки Basic Kanji Book':'уроки';
+    const defs=curLessonDefs(),cur=curLessons();
+    const allLes=defs.every(l=>cur.includes(l.id));
+    stg.innerHTML=`<span class="gtag gtag-all${allLes?' on':''}" onclick="toggleAllLessons()">${allLes?'✓ Всё выбрано':'Выбрать всё'}</span>`+defs.map(l=>`<span class="gtag${cur.includes(l.id)?' on':''}" onclick="togLesson(${typeof l.id==='number'?l.id:`'${l.id}'`})">${l.label}</span>`).join('');
+  } else ss.style.display='none';
+
+  // --- секция знаков ---
   const gs=document.getElementById('group-section'),gt=document.getElementById('gtags');
   const allBtnHTML=`<span class="gtag gtag-all" onclick="toggleAllGroups()">выбрать всё</span>`;
-  const hasGroups=st.topic!=='nums';
+  const hasGroups=(st.topic==='kana'||st.topic==='mix');
   gs.style.display=hasGroups?'block':'none';
-  if(st.topic==='hira'){document.getElementById('group-label').textContent='знаки';gt.innerHTML=allBtnHTML+H.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
-  else if(st.topic==='kata'){document.getElementById('group-label').textContent='знаки';gt.innerHTML=allBtnHTML+KA.map(r=>`<span class="gtag${st.groups.includes(r.row)?' on':''}" data-row="${r.row}" onclick="togGroup('${r.row}')">${r.row}</span>`).join('');}
+  if(st.topic==='kana'){document.getElementById('group-label').textContent='знаки';gt.innerHTML=allBtnHTML+kanaRows().map(r=>`<span class="gtag${st.groups.includes(r)?' on':''}" data-row="${r}" onclick="togGroup('${r}')">${r}</span>`).join('');}
   else if(st.topic==='mix'){document.getElementById('group-label').textContent='включить в микс';gt.innerHTML=allBtnHTML+['Хирагана','Катакана','Цифры'].map(r=>`<span class="gtag${st.groups.includes(r)?' on':''}" data-row="${r}" onclick="togGroup('${r}')">${r}</span>`).join('');}
   updateAllBtn();
 
@@ -749,8 +995,22 @@ document.getElementById('slen').addEventListener('input',function(){st.slen=+thi
 
 function buildPool(){
   const wo=document.getElementById('wonly')?.checked;let pool=[];
-  if(st.topic==='hira'){pool=bHP(st.groups);if(wo){const w=weakChars('hira',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.char));}}
-  else if(st.topic==='kata'){pool=bKP(st.groups);if(wo){const w=weakChars('kata',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.char));}}
+  if(st.topic==='kana'){
+    const sets=st.kanaSets.length?st.kanaSets:['hira'];
+    if(sets.includes('hira'))pool=[...pool,...bHP(st.groups)];
+    if(sets.includes('kata'))pool=[...pool,...bKP(st.groups)];
+    if(wo){const w=[...weakChars('hira',200),...weakChars('kata',200)].map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.char));}
+  }
+  else if(st.topic==='words'){
+    const ls=st.lessons.length?st.lessons:LESSONS.map(l=>l.id);
+    pool=WORDS.filter(x=>ls.includes(x.l)).map(x=>({type:'word',kana:x.k,kanji:x.j||'',ru:x.r,l:x.l}));
+    if(wo){const w=weakChars('word',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.kana));}
+  }
+  else if(st.topic==='kanji'){
+    const ls=st.klessons.length?st.klessons:KLESSONS.map(l=>l.id);
+    pool=KANJI.filter(x=>ls.includes(x.l)).map(x=>({type:'kanji',kanji:x.c,mean:x.m,l:x.l}));
+    if(wo){const w=weakChars('kanji',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.kanji));}
+  }
   else if(st.topic==='nums'){pool=buildNumPool(st.numMax);}
   else if(st.topic==='mix'){const inc=st.groups.length?st.groups:['Хирагана','Катакана','Цифры'];if(inc.includes('Хирагана'))pool=[...pool,...bHP([])];if(inc.includes('Катакана'))pool=[...pool,...bKP([])];if(inc.includes('Цифры'))pool=[...pool,...buildNumPool(st.numMax)];}
   // If only 'draw' is selected, filter pool to only drawable chars
@@ -793,6 +1053,7 @@ function startSprint(){
 }
 function sameCard(a,b){
   if(!a||!b)return false;
+  if(a.kana&&b.kana)return a.kana===b.kana;
   if(a.char&&b.char)return a.char===b.char;
   if(a.num!=null&&b.num!=null)return a.num===b.num;
   return false;
@@ -828,6 +1089,14 @@ function getModeForCard(c){
     :(fmtModes[0]||'fmt_multi');
   const isHardMode=fmt==='fmt_type';
 
+  if(c.type==='kanji'){
+    const valid=st.modes.filter(m=>m==='k2mean'||m==='mean2k');
+    return valid.length?valid[Math.floor(Math.random()*valid.length)]:'k2mean';
+  }
+  if(c.type==='word'){
+    const valid=st.modes.filter(m=>m==='ru2jp'||m==='jp2ru');
+    return valid.length?valid[Math.floor(Math.random()*valid.length)]:'jp2ru';
+  }
   if(c.type==='num'){
     const valid=st.modes.filter(m=>m==='num2jp'||m==='jp2num');
     return valid.length?valid[Math.floor(Math.random()*valid.length)]:'num2jp';
@@ -854,7 +1123,7 @@ function renderCard(){
   document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
   if(st.infinite)document.getElementById('inf-count').textContent=st.totalShown;
   st.answered=false;
-  const m=getModeForCard(c);const qq=document.getElementById('qq');
+  const m=getModeForCard(c);const qq=document.getElementById('qq');qq.style.wordBreak='';
   const sp=st.cards.map(x=>x.sound).filter(Boolean);const cp=st.cards.map(x=>x.char).filter(Boolean);
   if(m==='char2sound'){
     document.getElementById('qhint').textContent='как читается?';
@@ -868,6 +1137,31 @@ function renderCard(){
   }
   else if(m==='sound2char'){document.getElementById('qhint').textContent='выберите знак:';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.sound;renderOpts(c.char,cp,v=>chkOpt(v,c.char,c.sound+' = '+c.char,(c.type||st.topic)+':'+c.char),true);}
   else if(m==='draw'){document.getElementById('qhint').textContent='напишите знак ('+c.sound+')';qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.char;renderDraw(c);}
+  else if(m==='k2mean'){
+    document.getElementById('qhint').textContent='что значит этот кандзи?';
+    qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.kanji;
+    const mp=st.pool.filter(x=>x.type==='kanji').map(x=>x.mean);
+    renderOpts(c.mean,mp,v=>chkOpt(v,c.mean,c.kanji+' = '+c.mean,'kanji:'+c.kanji),false,true);
+  }
+  else if(m==='mean2k'){
+    document.getElementById('qhint').textContent='выберите кандзи:';
+    qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.style.wordBreak='normal';qq.textContent=c.mean;
+    const cp2=st.pool.filter(x=>x.type==='kanji').map(x=>x.kanji);
+    renderOpts(c.kanji,cp2,v=>chkOpt(v,c.kanji,c.mean+' = '+c.kanji,'kanji:'+c.kanji),true);
+  }
+  else if(m==='jp2ru'){
+    document.getElementById('qhint').textContent='что это значит?';
+    qq.className='qchar jpf';qq.style.fontFamily='';
+    qq.innerHTML=c.kanji?`<div>${c.kanji}</div><div style="font-family:'Noto Sans JP',sans-serif;font-size:17px;font-weight:500;color:var(--text2);margin-top:8px;letter-spacing:-0.02em">${c.kana}</div>`:c.kana;
+    const rp=st.pool.filter(x=>x.type==='word').map(x=>x.ru);
+    renderOpts(c.ru,rp,v=>chkOpt(v,c.ru,c.kana+' = '+c.ru,'word:'+c.kana),false,true);
+  }
+  else if(m==='ru2jp'){
+    document.getElementById('qhint').textContent='как это по-японски?';
+    qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.style.wordBreak='normal';qq.textContent=c.ru;
+    const kp=st.pool.filter(x=>x.type==='word').map(x=>x.kana);
+    renderOpts(c.kana,kp,v=>chkOpt(v,c.kana,c.ru+' = '+c.kana,'word:'+c.kana),true);
+  }
   else if(m==='num2jp'){document.getElementById('qhint').textContent='напишите по-японски:';qq.className='qchar';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.num;renderInp(v=>chkInp(v,c.jp,c.ru||[],'nums:'+c.num));}
   else{document.getElementById('qhint').textContent='что это за число?';qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.jp.split('/')[0];renderInp(v=>chkInpNum(v,c.num,c.ru||[],c.jp,'nums:'+c.num));}
 }
@@ -1068,10 +1362,10 @@ function renderDraw(card){
 }
 
 
-function renderOpts(cor,pool,onChk,jp){
+function renderOpts(cor,pool,onChk,jp,single){
   const opts=[cor,...getDist(cor,pool)].sort(()=>Math.random()-.5);
   const aa=document.getElementById('aarea');
-  aa.innerHTML='<div class="ogrid" id="opt-grid"></div>';
+  aa.innerHTML='<div class="ogrid'+(single?' ogrid-1':'')+'" id="opt-grid"></div>';
   const grid=document.getElementById('opt-grid');
   opts.forEach(o=>{
     const b=document.createElement('button');
@@ -1152,7 +1446,11 @@ function showResults(){
   const ml=document.getElementById('mlist');
   ml.innerHTML=!st.mistakes.length?'<p style="font-size:14px;color:var(--text2);font-weight:500">Ошибок нет!</p>':st.mistakes.slice(0,20).map(m=>{
     let display;
-    if(m.q.char){
+    if(m.q.type==='kanji'){
+      display=`${m.q.kanji} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.mean})</span>`;
+    } else if(m.q.type==='word'){
+      display=`${m.q.kanji||m.q.kana} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.ru})</span>`;
+    } else if(m.q.char){
       // Kana: show char with reading in parens
       display=`${m.q.char} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.sound})</span>`;
     } else if(m.q.jp){
