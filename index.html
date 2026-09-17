@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#EBEBF0" media="(prefers-color-scheme: light)">
-<title>日本語 Тренажёр</title>
+<title>tokidoki — тренажёр по японскому</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;700&family=PT+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -75,6 +75,16 @@ body { overflow-x: hidden; }
 .twrap { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0; align-items: center; }
 .gtag { padding: 9px 14px; border-radius: 36px; background: var(--surface); font-size: 15px; font-weight: 500; color: rgba(255,255,255,.7); cursor: pointer; border: none; transition: all .15s; touch-action: manipulation; letter-spacing: -0.05em; }
 .gtag.on { background: #fff; color: #000; }
+.rng { position: relative; height: 34px; margin-top: 2px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+.rng-track { position: absolute; top: 50%; left: 11px; right: 11px; height: 4px; margin-top: -2px; border-radius: 2px; background: var(--surface); }
+.rng-fill { position: absolute; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: var(--accent-grad); }
+.rng-h { position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px; transform: translateX(-50%); border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.5); border: 2px solid var(--accent); }
+.rng-labels { position: relative; height: 16px; margin-top: 1px; }
+.rng-labels span { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: -0.03em; }
+.rng-labels span.on { color: var(--text); }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.all-btn { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text2); cursor: pointer; letter-spacing: -0.04em; white-space: nowrap; }
+.all-btn:hover { color: var(--text); }
 .gtag-all { background: var(--surface); color: rgba(255,255,255,.5); }
 .gtag-all.on { background: #fff; color: #000; }
 @media (prefers-color-scheme: light) {
@@ -139,6 +149,8 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .ogrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
 .ogrid.ogrid-1 { grid-template-columns: 1fr; }
 .ogrid.ogrid-1 .obtn { min-height: 48px; padding: 13px 14px; text-align: left; line-height: 1.3; }
+.obtn .osub { font-size: 12px; font-weight: 500; color: var(--text2); margin-top: 3px; letter-spacing: -0.02em; }
+.obtn.state-ok .osub, .obtn.state-no .osub { color: inherit; opacity: .6; }
 @media (max-width: 320px) { .ogrid { grid-template-columns: 1fr; } }
 .obtn { padding: 16px 10px; border-radius: 18px; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--text); font-family: 'Noto Sans JP', 'Inter', sans-serif; background: var(--surface); border: 2px solid transparent; display: block; width: 100%; touch-action: manipulation; min-height: 56px; transition: background .18s, border-color .18s; }
 .obtn:not([disabled]):active { transform: scale(.95); }
@@ -158,10 +170,18 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .rs { background: var(--surface); border-radius: 18px; padding: 1rem; text-align: center; }
 .rsv { font-size: clamp(20px, 6vw, 26px); font-weight: 700; color: var(--text); }
 .rsl { font-size: 12px; color: var(--text2); margin-top: 2px; font-weight: 500; }
-.mrow2 { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.mrow2:last-child { border-bottom: none; }
-.mc { font-family: 'Noto Sans JP', sans-serif; font-size: 1.4rem; font-weight: 700; min-width: 75px; color: var(--text); word-break: break-all; line-height: 1.2; }
-.mi { font-size: 13px; color: var(--text2); line-height: 1.4; word-break: break-all; } .mi b { color: var(--text); }
+.etable { width: 100%; }
+.erow { display: grid; grid-template-columns: minmax(64px, 1.05fr) 1fr 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: start; }
+.erow:last-child { border-bottom: none; }
+.erow.ehead { padding-bottom: 7px; }
+.erow.ehead span { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text3); line-height: 1.2; }
+.eq { font-family: 'Noto Sans JP', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); line-height: 1.2; word-break: break-all; }
+.eq.ru { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: -0.02em; word-break: break-word; line-height: 1.3; }
+.eq .esub { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 11px; font-weight: 500; color: var(--text2); margin-top: 3px; letter-spacing: -0.02em; }
+.ea { font-size: 12.5px; font-weight: 500; line-height: 1.3; word-break: break-word; letter-spacing: -0.02em; }
+.ea.bad { color: var(--no-text); }
+.ea.good { color: var(--ok-text); }
+.ea.jpf { font-size: 15px; }
 .hrow { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 6px; }
 .hrow:last-child { border-bottom: none; }
 .hd { color: var(--text2); white-space: nowrap; flex-shrink: 0; } .ht { color: var(--text); font-weight: 600; flex: 1; text-align: center; }
@@ -222,30 +242,41 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 <div class="screen active" id="s-home">
   <div style="margin-bottom:1.75rem">
-    <div style="font-size:18px;font-weight:500;color:var(--text);letter-spacing:-0.05em;line-height:1">日本語</div>
-    <div style="font-size:14px;font-weight:500;color:var(--text2);letter-spacing:-0.05em;margin-top:2px">тренажёр по японскому</div>
+    <div style="font-size:18px;font-weight:500;color:var(--text);letter-spacing:-0.05em;line-height:1">tokidoki <span class="jpf" style="color:var(--text3);letter-spacing:-0.02em">ときどき</span></div>
+    <div style="font-size:14px;font-weight:500;color:var(--text2);letter-spacing:-0.05em;margin-top:3px">тренажёр по японскому</div>
   </div>
 
   <div id="tab-train">
     <p class="sl">что учим?</p>
     <div class="tgrid" id="tgrid"></div>
+    <p id="empty-hint" style="display:none;margin-top:20px;font-size:14px;line-height:1.5;color:var(--text2);letter-spacing:-0.03em">выбери выше то, что хочешь повторить, или можешь глянуть материалы и свою статистику ниже</p>
     <div id="cfg" style="display:none">
       <div id="sets-section" style="display:none;margin-top:28px">
-        <p class="sl" id="sets-label" style="margin-top:0">азбука</p>
+        <div class="sec-head">
+          <p class="sl" id="sets-label" style="margin:0">азбука</p>
+          <span class="all-btn" id="sets-all-btn" onclick="toggleAllLessons()">выбрать всё</span>
+        </div>
         <div class="twrap" id="stags"></div>
       </div>
       <div id="group-section" style="margin-top:24px">
-        <p class="sl" id="group-label" style="margin-top:0">знаки</p>
+        <div class="sec-head">
+          <p class="sl" id="group-label" style="margin:0">знаки</p>
+          <span class="all-btn" id="group-all-btn" onclick="toggleAllGroups()">выбрать всё</span>
+        </div>
         <div class="twrap" id="gtags"></div>
       </div>
       <div id="num-diff-section" style="display:none;margin-top:24px">
-        <p class="sl" style="margin-top:0">диапазон чисел</p>
-        <div class="seg" id="num-diff">
-          <button data-d="10" class="on">1–10</button>
-          <button data-d="100">1–100</button>
-          <button data-d="1000">1–1000</button>
-          <button data-d="9999">1–9999</button>
+        <div class="sec-head">
+          <p class="sl" style="margin:0">диапазон чисел</p>
+          <span class="all-btn" id="rng-caption" style="cursor:default">0 — 10</span>
         </div>
+        <div class="rng" id="num-range">
+          <div class="rng-track"></div>
+          <div class="rng-fill" id="rng-fill"></div>
+          <div class="rng-h" id="rng-lo"></div>
+          <div class="rng-h" id="rng-hi"></div>
+        </div>
+        <div class="rng-labels" id="rng-labels"></div>
       </div>
       <div id="warea" style="display:none;margin-top:20px">
         <p class="sl" id="weak-label" style="margin-top:0">слабые знаки</p>
@@ -256,7 +287,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       </div>
       <div id="mode-label" style="display:flex;align-items:center;justify-content:space-between;margin:28px 0 8px">
         <p class="sl" style="margin:0">режим</p>
-        <span id="mode-all-btn" onclick="toggleAllModes()" style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;letter-spacing:-0.04em">выбрать всё</span>
+        <span class="all-btn" id="mode-all-btn" onclick="toggleAllModes()">выбрать всё</span>
       </div>
       <div id="mcards"></div>
       <p class="sl">настройки</p>
@@ -322,7 +353,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
     <div class="rsv" style="color:var(--streak-text)" id="rbest">0</div>
     <div class="rsl">Лучшая серия</div>
   </div>
-  <div class="surface-card"><p class="sl" style="margin-top:0">Ошибки</p><div id="mlist"></div></div>
+  <div class="surface-card"><p class="sl" style="margin-top:0">Ошибки</p><div id="mlist" class="etable"></div></div>
   <div style="display:flex;gap:8px">
     <button class="btn btn-dark" style="flex:1;padding:14px" onclick="startSprint()">Ещё раз</button>
     <button class="btn btn-soft" style="flex:1;padding:14px" onclick="goHome()">Главная</button>
@@ -368,25 +399,19 @@ function numberToJapanese(n){
   return variants;
 }
 
-function buildNumPool(maxN){
+function buildNumPool(from,to){
+  if(to==null){to=from;from=0;}
+  if(from>to){const t=from;from=to;to=t;}
   const set=new Set();
-  if(maxN<=10){for(let i=0;i<=10;i++)set.add(i);}
-  else if(maxN<=100){
-    for(let i=0;i<=20;i++)set.add(i);
-    [30,40,50,60,70,80,90,100].forEach(x=>set.add(x));
-    let attempts=0;
-    while(set.size<30&&attempts<200){set.add(11+Math.floor(Math.random()*90));attempts++;}
-  } else if(maxN<=1000){
-    for(let i=0;i<=15;i++)set.add(i);
-    [20,30,50,100,200,300,400,500,600,700,800,900,1000].forEach(x=>set.add(x));
-    let attempts=0;
-    while(set.size<35&&attempts<400){set.add(10+Math.floor(Math.random()*991));attempts++;}
-  } else {
-    for(let i=0;i<=10;i++)set.add(i);
-    [15,20,50,100,200,300,500,600,800,1000,2000,3000,5000,8000,9000,9999].forEach(x=>set.add(x));
-    let attempts=0;
-    while(set.size<40&&attempts<600){set.add(10+Math.floor(Math.random()*9990));attempts++;}
-  }
+  // опорные числа: круглые и «неудобные» подряд идущие
+  const anchors=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,30,40,50,60,70,80,90,
+                 100,200,300,400,500,600,700,800,900,
+                 1000,2000,3000,4000,5000,6000,7000,8000,9000,9999];
+  anchors.forEach(n=>{if(n>=from&&n<=to)set.add(n)});
+  const span=to-from+1;
+  const target=Math.min(40,span);
+  let attempts=0;
+  while(set.size<target&&attempts<800){set.add(from+Math.floor(Math.random()*span));attempts++;}
   return [...set].map(n=>{
     const variants=numberToJapanese(n);
     return {type:'num',num:n,jp:variants.join('/'),ru:ruReading(n)};
@@ -677,7 +702,7 @@ function getCharStat(topic,ch){const d=ld();const k=topic+':'+ch;if(!d.cs[k])ret
 function bHP(g){let p=[];(g&&g.length?H.filter(r=>g.includes(r.row)):H).forEach(r=>r.chars.forEach(c=>p.push({type:'hira',char:c[0],sound:c[1]})));return p;}
 function bKP(g){let p=[];(g&&g.length?KA.filter(r=>g.includes(r.row)):KA).forEach(r=>r.chars.forEach(c=>p.push({type:'kata',char:c[0],sound:c[1]})));return p;}
 
-let st={topic:null,modes:[],groups:[],kanaSets:['hira'],lessons:[1],klessons:[1],slen:15,infinite:false,numMax:10,pool:[],cards:[],idx:0,ok:0,fail:0,mistakes:[],answered:false,streak:0,bestStreak:0,totalShown:0};
+let st={topic:null,modes:[],groups:[],kanaSets:['hira'],lessons:[1],klessons:[1],slen:15,infinite:false,numLo:0,numHi:1,pool:[],cards:[],idx:0,ok:0,fail:0,mistakes:[],answered:false,streak:0,bestStreak:0,totalShown:0};
 let ctab='train';
 
 const showScreen=id=>{
@@ -815,9 +840,11 @@ function renderHome(){
   }
   if(st.topic){
     document.getElementById('cfg').style.display='block';
+    document.getElementById('empty-hint').style.display='none';
     renderCfg();
   } else {
     document.getElementById('cfg').style.display='none';
+    document.getElementById('empty-hint').style.display='block';
   }
 }
 
@@ -830,6 +857,7 @@ function selTopic(id){
   document.querySelectorAll('.tpill').forEach(p=>p.classList.remove('on'));
   event.currentTarget.classList.add('on');
   document.getElementById('cfg').style.display='block';
+  document.getElementById('empty-hint').style.display='none';
   renderCfg();
 }
 
@@ -892,12 +920,56 @@ function toggleAllGroups(){
   document.querySelectorAll('.gtag[data-row]').forEach(t=>t.classList.toggle('on',st.groups.includes(t.dataset.row)));
   updateAllBtn();renderWeak();
 }
+const NUM_STOPS=[0,10,100,1000,9999];
+function stopPos(i){
+  const f=i/(NUM_STOPS.length-1);
+  return `calc(${(f*100).toFixed(4)}% + ${(11-f*22).toFixed(3)}px)`;
+}
+function stopPosFromRight(i){
+  const f=i/(NUM_STOPS.length-1);
+  return `calc(${(100-f*100).toFixed(4)}% + ${(f*22-11).toFixed(3)}px)`;
+}
+function renderNumRange(){
+  const lo=st.numLo,hi=st.numHi;
+  document.getElementById('rng-lo').style.left=stopPos(lo);
+  document.getElementById('rng-hi').style.left=stopPos(hi);
+  const fill=document.getElementById('rng-fill');
+  fill.style.left=stopPos(lo);fill.style.right=stopPosFromRight(hi);
+  document.getElementById('rng-caption').textContent=NUM_STOPS[lo]+' — '+NUM_STOPS[hi];
+  document.getElementById('rng-labels').innerHTML=NUM_STOPS.map((v,i)=>`<span class="${i>=lo&&i<=hi?'on':''}" style="left:${stopPos(i)}">${v}</span>`).join('');
+}
+function numRangeInit(){
+  const el=document.getElementById('num-range');
+  if(!el||el.dataset.init)return;
+  el.dataset.init='1';
+  let active=null;
+  const idxAt=x=>{
+    const r=el.getBoundingClientRect();
+    const f=(x-r.left-11)/Math.max(1,r.width-22);
+    return Math.max(0,Math.min(NUM_STOPS.length-1,Math.round(f*(NUM_STOPS.length-1))));
+  };
+  const move=e=>{
+    if(!active)return;
+    const i=idxAt(e.clientX);
+    if(active==='lo')st.numLo=Math.max(0,Math.min(i,st.numHi-1));
+    else st.numHi=Math.min(NUM_STOPS.length-1,Math.max(i,st.numLo+1));
+    renderNumRange();
+  };
+  el.addEventListener('pointerdown',e=>{
+    const i=idxAt(e.clientX);
+    active=(Math.abs(i-st.numLo)<=Math.abs(i-st.numHi))?'lo':'hi';
+    try{el.setPointerCapture(e.pointerId);}catch{}
+    move(e);e.preventDefault();
+  });
+  el.addEventListener('pointermove',move);
+  el.addEventListener('pointerup',()=>{active=null;});
+  el.addEventListener('pointercancel',()=>{active=null;});
+}
 function updateAllBtn(){
-  const btn=document.querySelector('.gtag-all');if(!btn)return;
+  const btn=document.getElementById('group-all-btn');if(!btn)return;
   const all=getAllRowsForTopic();
   const allOn=all.length>0&&all.every(r=>st.groups.includes(r));
-  btn.classList.toggle('on',allOn);
-  btn.textContent=allOn?'✓ Всё выбрано':'Выбрать всё';
+  btn.textContent=allOn?'✓ всё':'выбрать всё';
 }
 
 function renderWeak(){
@@ -944,21 +1016,23 @@ function renderCfg(){
 
   // --- верхняя секция: азбука / уроки ---
   const ss=document.getElementById('sets-section'),stg=document.getElementById('stags');
+  document.getElementById('sets-all-btn').style.display=(st.topic==='words'||st.topic==='kanji')?'inline':'none';
   if(st.topic==='kana'){
     ss.style.display='block';
     document.getElementById('sets-label').textContent='азбука';
     stg.innerHTML=KANA_SETS.map(k=>`<span class="gtag${st.kanaSets.includes(k.id)?' on':''}" onclick="togSet('${k.id}')">${k.label}</span>`).join('');
   } else if(st.topic==='words'||st.topic==='kanji'){
     ss.style.display='block';
-    document.getElementById('sets-label').textContent=st.topic==='kanji'?'уроки Basic Kanji Book':'уроки';
+    document.getElementById('sets-label').textContent=st.topic==='kanji'?'уроки по Basic Kanji Book':'уроки по Minna no Nihongo';
     const defs=curLessonDefs(),cur=curLessons();
     const allLes=defs.every(l=>cur.includes(l.id));
-    stg.innerHTML=`<span class="gtag gtag-all${allLes?' on':''}" onclick="toggleAllLessons()">${allLes?'✓ Всё выбрано':'Выбрать всё'}</span>`+defs.map(l=>`<span class="gtag${cur.includes(l.id)?' on':''}" onclick="togLesson(${typeof l.id==='number'?l.id:`'${l.id}'`})">${l.label}</span>`).join('');
+    document.getElementById('sets-all-btn').textContent=allLes?'✓ всё':'выбрать всё';
+    stg.innerHTML=defs.map(l=>`<span class="gtag${cur.includes(l.id)?' on':''}" onclick="togLesson(${typeof l.id==='number'?l.id:`'${l.id}'`})">${l.label}</span>`).join('');
   } else ss.style.display='none';
 
   // --- секция знаков ---
   const gs=document.getElementById('group-section'),gt=document.getElementById('gtags');
-  const allBtnHTML=`<span class="gtag gtag-all" onclick="toggleAllGroups()">выбрать всё</span>`;
+  const allBtnHTML='';
   const hasGroups=(st.topic==='kana'||st.topic==='mix');
   gs.style.display=hasGroups?'block':'none';
   if(st.topic==='kana'){document.getElementById('group-label').textContent='знаки';gt.innerHTML=allBtnHTML+kanaRows().map(r=>`<span class="gtag${st.groups.includes(r)?' on':''}" data-row="${r}" onclick="togGroup('${r}')">${r}</span>`).join('');}
@@ -968,10 +1042,7 @@ function renderCfg(){
   const nds=document.getElementById('num-diff-section');
   if(st.topic==='nums'||st.topic==='mix'){
     nds.style.display='block';
-    document.querySelectorAll('#num-diff button').forEach(b=>{
-      b.classList.toggle('on',+b.dataset.d===st.numMax);
-      b.onclick=()=>{st.numMax=+b.dataset.d;document.querySelectorAll('#num-diff button').forEach(x=>x.classList.toggle('on',x===b));};
-    });
+    numRangeInit();renderNumRange();
   } else {
     nds.style.display='none';
   }
@@ -1011,8 +1082,8 @@ function buildPool(){
     pool=KANJI.filter(x=>ls.includes(x.l)).map(x=>({type:'kanji',kanji:x.c,mean:x.m,l:x.l}));
     if(wo){const w=weakChars('kanji',200).map(x=>x.char);if(w.length)pool=pool.filter(p=>w.includes(p.kanji));}
   }
-  else if(st.topic==='nums'){pool=buildNumPool(st.numMax);}
-  else if(st.topic==='mix'){const inc=st.groups.length?st.groups:['Хирагана','Катакана','Цифры'];if(inc.includes('Хирагана'))pool=[...pool,...bHP([])];if(inc.includes('Катакана'))pool=[...pool,...bKP([])];if(inc.includes('Цифры'))pool=[...pool,...buildNumPool(st.numMax)];}
+  else if(st.topic==='nums'){pool=buildNumPool(NUM_STOPS[st.numLo],NUM_STOPS[st.numHi]);}
+  else if(st.topic==='mix'){const inc=st.groups.length?st.groups:['Хирагана','Катакана','Цифры'];if(inc.includes('Хирагана'))pool=[...pool,...bHP([])];if(inc.includes('Катакана'))pool=[...pool,...bKP([])];if(inc.includes('Цифры'))pool=[...pool,...buildNumPool(NUM_STOPS[st.numLo],NUM_STOPS[st.numHi])];}
   // If only 'draw' is selected, filter pool to only drawable chars
   if(st.modes.length===1&&st.modes[0]==='draw'){
     pool=pool.filter(p=>p.char&&STROKE_DATA.hasOwnProperty(p.char));
@@ -1159,8 +1230,11 @@ function renderCard(){
   else if(m==='ru2jp'){
     document.getElementById('qhint').textContent='как это по-японски?';
     qq.className='qread';qq.style.fontFamily='Inter,sans-serif';qq.style.wordBreak='normal';qq.textContent=c.ru;
-    const kp=st.pool.filter(x=>x.type==='word').map(x=>x.kana);
-    renderOpts(c.kana,kp,v=>chkOpt(v,c.kana,c.ru+' = '+c.kana,'word:'+c.kana),true);
+    const wlist=st.pool.filter(x=>x.type==='word');
+    const kp=wlist.map(x=>x.kana);
+    const kmap={};wlist.forEach(x=>{kmap[x.kana]=x.kanji});
+    const lab=k=>kmap[k]?`<div>${kmap[k]}</div><div class="osub">${k}</div>`:`<div>${k}</div>`;
+    renderOpts(c.kana,kp,v=>chkOpt(v,c.kana,c.ru+' = '+c.kana,'word:'+c.kana),true,false,lab);
   }
   else if(m==='num2jp'){document.getElementById('qhint').textContent='напишите по-японски:';qq.className='qchar';qq.style.fontFamily='Inter,sans-serif';qq.textContent=c.num;renderInp(v=>chkInp(v,c.jp,c.ru||[],'nums:'+c.num));}
   else{document.getElementById('qhint').textContent='что это за число?';qq.className='qchar jpf';qq.style.fontFamily='';qq.textContent=c.jp.split('/')[0];renderInp(v=>chkInpNum(v,c.num,c.ru||[],c.jp,'nums:'+c.num));}
@@ -1362,20 +1436,23 @@ function renderDraw(card){
 }
 
 
-function renderOpts(cor,pool,onChk,jp,single){
+function renderOpts(cor,pool,onChk,jp,single,labelFn){
   const opts=[cor,...getDist(cor,pool)].sort(()=>Math.random()-.5);
   const aa=document.getElementById('aarea');
   aa.innerHTML='<div class="ogrid'+(single?' ogrid-1':'')+'" id="opt-grid"></div>';
   const grid=document.getElementById('opt-grid');
   opts.forEach(o=>{
     const b=document.createElement('button');
-    b.className='obtn'+(jp?' jpf':'');b.textContent=o;
+    b.className='obtn'+(jp?' jpf':'');
+    b.dataset.val=o;
+    if(labelFn)b.innerHTML=labelFn(o);else b.textContent=o;
     b.addEventListener('click',function(){
       if(st.answered)return;st.answered=true;
-      const isOk=this.textContent===cor;
-      grid.querySelectorAll('.obtn').forEach(x=>{x.setAttribute('disabled','');if(x.textContent===cor)x.className=x.className.replace(/state-\w+/g,'')+' state-ok';});
+      const v=this.dataset.val;
+      const isOk=v===cor;
+      grid.querySelectorAll('.obtn').forEach(x=>{x.setAttribute('disabled','');if(x.dataset.val===cor)x.className=x.className.replace(/state-\w+/g,'')+' state-ok';});
       if(!isOk)this.className=this.className.replace(/state-\w+/g,'')+' state-no';
-      onChk(this.textContent);
+      onChk(v);
       setTimeout(()=>nextCard(),isOk?650:1300);
     });
     grid.appendChild(b);
@@ -1444,23 +1521,27 @@ function showResults(){
   const tot=st.ok+st.fail,pct=tot?Math.round(st.ok/tot*100):0;
   document.getElementById('rc').textContent=st.ok;document.getElementById('rw').textContent=st.fail;document.getElementById('rp').textContent=pct+'%';document.getElementById('rbest').textContent=st.bestStreak;
   const ml=document.getElementById('mlist');
-  ml.innerHTML=!st.mistakes.length?'<p style="font-size:14px;color:var(--text2);font-weight:500">Ошибок нет!</p>':st.mistakes.slice(0,20).map(m=>{
-    let display;
-    if(m.q.type==='kanji'){
-      display=`${m.q.kanji} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.mean})</span>`;
-    } else if(m.q.type==='word'){
-      display=`${m.q.kanji||m.q.kana} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.ru})</span>`;
-    } else if(m.q.char){
-      // Kana: show char with reading in parens
-      display=`${m.q.char} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.sound})</span>`;
-    } else if(m.q.jp){
-      // Number JP: show japanese with number
-      display=`${m.q.jp.split('/')[0]} <span style="font-size:13px;color:var(--text2);font-weight:500">(${m.q.num})</span>`;
-    } else {
-      display=m.q.num;
-    }
-    return `<div class="mrow2"><span class="mc">${display}</span><span class="mi">Вы: <b>${m.ans}</b> → правильно: <b>${m.cor}</b></span></div>`;
-  }).join('');
+  if(!st.mistakes.length){
+    ml.innerHTML='<p style="font-size:14px;color:var(--text2);font-weight:500">Ошибок нет!</p>';
+  } else {
+    const head='<div class="erow ehead"><span>вопрос</span><span>твой ответ</span><span>правильный</span></div>';
+    ml.innerHTML=head+st.mistakes.slice(0,20).map(m=>{
+      const q=m.q;
+      const isJP=t=>/[\u3040-\u30FF\u4E00-\u9FFF]/.test(t);
+      // в колонке «вопрос» — то, что реально показали на карточке
+      const askedJP=!isJP(m.cor);
+      let main,sub='';
+      if(q.type==='kanji'){ if(askedJP){main=q.kanji;} else {main=q.mean;} }
+      else if(q.type==='word'){ if(askedJP){main=q.kanji||q.kana;sub=q.kanji?q.kana:'';} else {main=q.ru;} }
+      else if(q.char){ if(askedJP){main=q.char;} else {main=q.sound;} }
+      else if(q.jp){ if(askedJP){main=q.jp.split('/')[0];sub=q.num;} else {main=q.num;} }
+      else {main=q.num;}
+      const jpAns=isJP(m.cor)?' jpf':'';
+      return `<div class="erow"><span class="eq${askedJP?'':' ru'}">${main}${sub?`<span class="esub">${sub}</span>`:''}</span>`+
+             `<span class="ea bad${jpAns}">${m.ans}</span>`+
+             `<span class="ea good${jpAns}">${m.cor}</span></div>`;
+    }).join('');
+  }
   showScreen('s-result');
 }
 
