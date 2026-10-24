@@ -40,6 +40,8 @@ body { overflow-x: hidden; }
 .app { max-width: 480px; margin: 0 auto; padding: 1.5rem 1.25rem 6rem; }
 @media (max-width: 400px) { .app { padding: 1.25rem 1rem 6rem; } }
 .screen { display: none; } .screen.active { display: block; }
+body.in-sprint .tabs { display: none; }
+body.in-sprint #finish-fixed { bottom: calc(16px + env(safe-area-inset-bottom)) !important; }
 .jpf { font-family: 'Noto Sans JP', sans-serif; }
 
 /* Section labels — PT Mono */
@@ -812,6 +814,7 @@ let ctab='train';
 const showScreen=id=>{
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.body.classList.toggle('in-sprint',id==='s-sprint');
   window.scrollTo(0,0);
 };
 function goHome(){
