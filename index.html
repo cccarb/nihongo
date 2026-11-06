@@ -515,6 +515,10 @@ input:checked + .toggle-slider:before { transform:translateX(17px); }
   <div class="ui-row" id="ui-theme"></div>
   <p class="sl">размер текста</p>
   <div class="ui-row" id="ui-fs"></div>
+  <p class="sl">звук</p>
+  <div class="ui-row" id="ui-snd"></div>
+  <p class="sl">звук выбора</p>
+  <div class="ui-row" id="ui-tap"></div>
   <button class="btn btn-dark ui-done" style="padding:15px;font-size:calc(16px * var(--fs));border-radius:36px;letter-spacing:-0.04em" onclick="closeUi()">готово</button>
 </div>
 
@@ -1806,7 +1810,7 @@ function renderDraw(card){
     // Overall: ok if count matches AND all strokes valid
     const allOk=countOk&&correctCount===totalStrokes;
     const key='hira:'+card.char;
-    recChar(key,allOk);
+    recChar(key,allOk);sfxResult(allOk);
     if(allOk){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}
     else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:card,ans:`${correctCount}/${userStrokes.length} штрихов`,cor:`${totalStrokes} штрихов по порядку`});st.streak=0;}
     updateStreak();
@@ -1877,7 +1881,7 @@ function renderInp(onSub){
 function subInp(){if(st.answered)return;const v=document.getElementById('ainp').value.trim();if(!v)return;st.answered=true;const b=document.getElementById('idk-btn');if(b)b.setAttribute('disabled','');window._sub(v);}
 
 function chkOpt(val,cor,full,key){
-  const ok=val===cor;recChar(key,ok);
+  const ok=val===cor;recChar(key,ok);sfxResult(ok);
   if(ok){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:st.cards[st.idx],ans:val,cor});st.streak=0;}
   updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
 }
@@ -1889,7 +1893,7 @@ function chkRomaji(val,cor,full,key){
   const inp=document.getElementById('ainp');if(inp){inp.className='ainp '+(ok?'state-ok':'state-no');inp.disabled=true;}
   const btn=document.getElementById('chk-btn');if(btn)btn.style.display='none';
   const rev=document.getElementById('num-reveal');if(rev){rev.style.display='block';rev.className='num-reveal '+(ok?'state-ok':'state-no');rev.textContent=ok?'✓ Верно! '+cor:'✗ Правильно: '+cor;}
-  recChar(key,ok);
+  recChar(key,ok);sfxResult(ok);
   if(ok){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:st.cards[st.idx],ans:val,cor});st.streak=0;}
   updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
   setTimeout(()=>nextCard(),ok?900:1700);
@@ -1903,7 +1907,7 @@ function chkInp(val,cor,extras,key){
   const inp=document.getElementById('ainp');if(inp){inp.className='ainp '+(ok?'state-ok':'state-no');inp.disabled=true;}
   const btn=document.getElementById('chk-btn');if(btn)btn.style.display='none';
   const rev=document.getElementById('num-reveal');if(rev){rev.style.display='block';rev.className='num-reveal '+(ok?'state-ok':'state-no');rev.textContent=ok?'✓ Верно! '+jpV[0]:'✗ Правильно: '+jpV[0];}
-  recChar(key,ok);
+  recChar(key,ok);sfxResult(ok);
   if(ok){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:st.cards[st.idx],ans:val,cor:jpV[0]});st.streak=0;}
   updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
   setTimeout(()=>nextCard(),ok?1200:2000);
@@ -1916,7 +1920,7 @@ function chkInpNum(val,correctNum,extras,jpShown,key){
   const inp=document.getElementById('ainp');if(inp){inp.className='ainp '+(ok?'state-ok':'state-no');inp.disabled=true;}
   const btn=document.getElementById('chk-btn');if(btn)btn.style.display='none';
   const rev=document.getElementById('num-reveal');if(rev){rev.style.display='block';rev.className='num-reveal '+(ok?'state-ok':'state-no');rev.textContent=ok?'✓ Верно! '+correctNum:'✗ Правильно: '+correctNum;}
-  recChar(key,ok);
+  recChar(key,ok);sfxResult(ok);
   if(ok){st.ok++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;}else{st.fail++;if(st.mistakes.length<50)st.mistakes.push({q:st.cards[st.idx],ans:val,cor:String(correctNum)});st.streak=0;}
   updateStreak();document.getElementById('spc').textContent='✓ '+st.ok;document.getElementById('spw').textContent='✗ '+st.fail;
   setTimeout(()=>nextCard(),ok?1200:2000);
@@ -1926,7 +1930,7 @@ function nextCard(){st.idx++;if(!st.infinite&&st.idx>=st.cards.length){showResul
 
 function showResults(){
   recSprint(st.topic,st.modes,st.ok,st.fail,st.bestStreak);
-  const tot=st.ok+st.fail,pct=tot?Math.round(st.ok/tot*100):0;
+  const tot=st.ok+st.fail,pct=tot?Math.round(st.ok/tot*100):0;if(tot)sfxFinish(pct);
   document.getElementById('rc').textContent=st.ok;document.getElementById('rw').textContent=st.fail;document.getElementById('rp').textContent=pct+'%';document.getElementById('rbest').textContent=st.bestStreak;
   const ml=document.getElementById('mlist');
   if(!st.mistakes.length){
@@ -1959,14 +1963,220 @@ renderHome();
 const UI_THEMES=[{id:'auto',label:'системная',sub:''},{id:'light',label:'светлая',sub:''},{id:'dark',label:'тёмная',sub:''}];
 const UI_SIZES=[{id:'s',px:15},{id:'m',px:17},{id:'l',px:19}];
 function renderUi(){
-  const u=uiLoad();
+  const u=uiLoad();renderSnd();
   document.getElementById('ui-theme').innerHTML=UI_THEMES.map(t=>`<button class="mbtn${u.theme===t.id?' on':''}" onclick="setUi('theme','${t.id}')"><h4>${t.label}</h4>${t.sub?`<p>${t.sub}</p>`:''}</button>`).join('');
   document.getElementById('ui-fs').innerHTML=UI_SIZES.map(z=>`<button class="mbtn${u.fs===z.id?' on':''}" onclick="setUi('fs','${z.id}')"><h4 class="ui-aa" style="font-size:${z.px}px">аа</h4><p class="ui-size">${z.id.toUpperCase()}</p></button>`).join('');
 }
+function renderSnd(){
+  renderTap();
+  const el=document.getElementById('ui-snd');if(!el)return;
+  el.innerHTML=[[1,'включён'],[0,'выключен']].map(([v,l])=>`<button class="mbtn${(sndOn?1:0)===v?' on':''}" onclick="setSnd(${v})"><h4>${l}</h4></button>`).join('');
+}
+function renderTap(){
+  const el=document.getElementById('ui-tap');if(!el)return;
+  el.innerHTML=TAPS.map(t=>`<button class="mbtn${tapId===t.id?' on':''}" data-notap="1" onclick="setTap('${t.id}')"><h4>${t.label}</h4>${t.jp?`<p style="font-family:'Noto Sans JP','Inter',sans-serif">${t.jp}</p>`:''}</button>`).join('');
+}
+function setTap(id){tapId=id;try{localStorage.setItem(TAP_LS,id)}catch{}renderTap();if(sndOn&&id!=='off')_tapPlay(id);}
+function setSnd(v){sndOn=!!v;try{localStorage.setItem(SND_LS,v?'1':'0')}catch{}renderSnd();if(v){sfxTap();setTimeout(sfxResult,160,true)}}
 function setUi(k,v){const u=uiLoad();u[k]=v;uiSave(u);uiApply(u);renderUi();}
 function openUi(){renderUi();document.getElementById('ui-backdrop').classList.add('open');document.getElementById('ui-sheet').classList.add('open');}
 function closeUi(){document.getElementById('ui-backdrop').classList.remove('open');document.getElementById('ui-sheet').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeUi();});
+</script>
+
+<script>
+// ============ ЗВУКИ (Web Audio, без файлов) ============
+const SND_LS='tokidoki_snd';
+let sndOn=(()=>{try{return localStorage.getItem(SND_LS)!=='0'}catch{return true}})();
+let _ac=null,_master=null;
+function sndCtx(){
+  if(!_ac){
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+    _ac=new AC();
+    _master=_ac.createGain();_master.gain.value=.8;
+    const comp=_ac.createDynamicsCompressor();
+    _master.connect(comp);comp.connect(_ac.destination);
+  }
+  return _ac;
+}
+function _tone(f,t,dur,o={}){
+  const ac=_ac,osc=ac.createOscillator(),g=ac.createGain();
+  osc.type=o.type||'sine';
+  osc.frequency.setValueAtTime(f,t);
+  if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,t+dur);
+  const vol=o.vol||.2,att=o.att||.006;
+  g.gain.setValueAtTime(.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol,t+att);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  let n=osc;
+  if(o.lp){const b=ac.createBiquadFilter();b.type='lowpass';b.frequency.value=o.lp;osc.connect(b);n=b;}
+  n.connect(g);g.connect(_master);
+  osc.start(t);osc.stop(t+dur+.03);
+}
+function _play(fn){
+  if(!sndOn)return;
+  const ac=sndCtx();if(!ac)return;
+  if(ac.state==='running'){fn(ac.currentTime+.005);return;}
+  ac.resume().then(()=>{if(ac.state==='running')fn(ac.currentTime+.005)}).catch(()=>{});
+}
+// шум (для щелчка пальца по струне и «воздуха» удара)
+let _nb=null;
+function _noise(t,dur,f,q,vol){
+  const ac=_ac;
+  if(!_nb){_nb=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=_nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+  const src=ac.createBufferSource();src.buffer=_nb;
+  const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;
+  const g=ac.createGain();
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.002);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  src.connect(bp);bp.connect(g);g.connect(_master);
+  src.start(t,Math.random()*.5);src.stop(t+dur+.02);
+}
+// глухой деревянный/барабанный удар (мокугё / цудзуми / тайко)
+function _knock(t,f0,f1,dur,vol,air){
+  _tone(f0,t,dur,{type:'sine',vol:vol,to:f1,att:.002});
+  _tone(f0*2.2,t,dur*.45,{type:'triangle',vol:vol*.35,to:f1*2,att:.002,lp:1400});
+  _noise(t,Math.min(.04,dur*.5),air||900,1.2,vol*.55);
+}
+// щипок струны кото: тон с быстро затухающими обертонами
+function _koto(f,t,dur,vol){
+  [[1,1,1],[2,.5,.6],[3,.22,.35],[4.03,.1,.22]].forEach(([m,v,d])=>
+    _tone(f*m,t,dur*d,{type:'sine',vol:vol*v,att:.003}));
+  _noise(t,.018,3200,2,vol*.5);
+}
+// тап / выбор: короткий глухой «ток»
+const TAP_LS='tokidoki_tap';
+const TAPS=[
+  {id:'toku',label:'ток',jp:'木'},
+  {id:'tsuzumi',label:'цудзуми',jp:'鼓'},
+  {id:'hyoshigi',label:'клацанье',jp:'拍子木'},
+  {id:'koto',label:'кото',jp:'琴'},
+  {id:'rin',label:'колокольчик',jp:'鈴'},
+  {id:'suikin',label:'капля',jp:'水琴窟'},
+  {id:'off',label:'без звука',jp:''}
+];
+let tapId=(()=>{try{const v=localStorage.getItem(TAP_LS);return TAPS.some(t=>t.id===v)?v:'toku'}catch{return 'toku'}})();
+const TAP_FX={
+  // глухой деревянный «ток» (мокугё)
+  toku:t=>_knock(t,330,170,.075,.26,800),
+  // малый ручной барабан цудзуми: полый «пон» с лёгким подъёмом тона
+  tsuzumi:t=>{
+    _tone(520,t,.13,{type:'sine',vol:.3,to:380,att:.002});
+    _tone(1040,t,.05,{type:'triangle',vol:.1,to:760,att:.002,lp:1800});
+    _noise(t,.015,1600,1.5,.12);
+  },
+  // хёсиги: два сухих удара деревянных брусков «кас-кас»
+  hyoshigi:t=>{
+    [[0,.2],[.04,.12]].forEach(([d,v])=>{
+      _tone(1500,t+d,.035,{type:'triangle',vol:v,to:1150,att:.001});
+      _noise(t+d,.02,2400,2.5,v*.9);
+    });
+  },
+  // короткий тихий щипок кото
+  koto:t=>_koto(988,t,.32,.16),
+  // маленький колокольчик (рин), мягкий и недолгий
+  rin:t=>{
+    _tone(1760,t,.5,{vol:.1,att:.002});
+    _tone(1760*2.76,t,.25,{vol:.04,att:.002});
+    _tone(1760*5.4,t,.1,{vol:.02,att:.002});
+  },
+  // суйкинкуцу: капля воды и эхо в кувшине
+  suikin:t=>{
+    _tone(900,t,.06,{vol:.17,to:1800,att:.002});
+    _tone(1397,t+.02,.5,{vol:.08,att:.004});
+    _tone(1397,t+.15,.4,{vol:.035,att:.004});
+  }
+};
+function _tapPlay(id){_play(TAP_FX[id]||TAP_FX.toku);}
+function sfxTap(){if(tapId==='off')return;_tapPlay(tapId);}
+// Сямисэн: струна (Karplus–Strong) + удар бати по коже + «савари» (дребезг струны о порожек)
+const _SHAM={};
+function _shamGen(f,T,dur,seed){
+  const N=100,sr=f*(N+1),len=Math.round(sr*dur);
+  let r=seed>>>0||1;const rnd=()=>{r=(Math.imul(r,1664525)+1013904223)>>>0;return r/2147483648-1;};
+  // возбуждение: сглаженный шум + «гребёнка» (мягче и глуше, чем острый щипок)
+  const M=N+2,raw=new Float32Array(M),ex=new Float32Array(M);
+  for(let i=0;i<M;i++)raw[i]=rnd();
+  for(let i=0;i<M;i++)ex[i]=(raw[i]+(i?raw[i-1]:0)+(i>1?raw[i-2]:0))/3;
+  const pp=Math.round(N*.14),e2=new Float32Array(M);let mean=0;
+  for(let i=0;i<M;i++){e2[i]=ex[i]-(i>=pp?ex[i-pp]:0);mean+=e2[i];}
+  mean/=M;
+  const y=new Float32Array(len),g=Math.pow(10,-2/(f*T));
+  for(let n=0;n<len;n++){
+    y[n]=n<M?e2[n]-mean:g*(.5*y[n-N-1]+.25*(y[n-N]+y[n-N-2]));  // трёхточечное затухание: высокие уходят быстрее
+  }
+  let m=0;for(let n=0;n<len;n++)m=Math.max(m,Math.abs(y[n]));
+  const out=new Float32Array(len),k=1.5,tk=Math.tanh(k);
+  for(let n=0;n<len;n++){
+    const t=n/sr,yn=y[n]/m;
+    let v=Math.tanh(k*yn)/tk;
+    const d=(yn-(n?y[n-1]/m:0))*5;
+    const env=Math.min(1,t/.04)*Math.exp(-t/(T*.55));
+    v+=.07*Math.tanh(3*d)*env;                      // савари: едва заметный дребезг
+    if(t<.1){                                        // удар бати по коже: больше «тела», меньше щелчка
+      const th=Math.sin(2*Math.PI*(110*t+60*.015*(1-Math.exp(-t/.015))))*Math.exp(-t/.026)*1.0;
+      const cl=rnd()*Math.exp(-t/.003)*.2;
+      v+=th+cl;
+    }
+    out[n]=v;
+  }
+  // общий мягкий срез верха (~2.2 кГц)
+  const c=Math.exp(-2*Math.PI*2200/sr);let lp=0;
+  for(let n=0;n<len;n++){lp=(1-c)*out[n]+c*lp;out[n]=lp;}
+  let mx=0;for(let n=0;n<len;n++)mx=Math.max(mx,Math.abs(out[n]));
+  const fade=Math.round(sr*.03);
+  for(let n=0;n<len;n++){out[n]=out[n]/mx*.9*(n>len-fade?(len-n)/fade:1);}
+  return {a:out,sr};
+}
+function _sham(f,t,vol,T,dur,seed){
+  const ac=_ac;let b=_SHAM[f];
+  if(!b){const g=_shamGen(f,T,dur,seed);b=ac.createBuffer(1,g.a.length,g.sr);b.copyToChannel(g.a,0);_SHAM[f]=b;}
+  const src=ac.createBufferSource(),gn=ac.createGain(),lp=ac.createBiquadFilter();
+  lp.type='lowpass';lp.frequency.value=2600;lp.Q.value=.5;
+  src.buffer=b;gn.gain.value=vol;src.connect(lp);lp.connect(gn);gn.connect(_master);src.start(t);
+}
+// правильно: сямисэн, до → фа (две открытые струны хонтёси), первая нота ещё звенит
+function sfxOk(){_play(t=>{
+  _sham(523.25,t,.5,1.3,.9,7);
+  _sham(698.46,t+.12,.65,1.6,1.1,11);
+});}
+// неправильно: два глухих удара вниз + низкий приглушённый щипок
+function sfxNo(){_play(t=>{
+  _knock(t,200,90,.16,.4,600);
+  _knock(t+.14,165,70,.22,.4,500);
+  _tone(147,t+.14,.35,{type:'triangle',vol:.12,lp:600,att:.01});
+});}
+function sfxResult(ok){ok?sfxOk():sfxNo();}
+// конец тренировки
+function sfxFinish(pct){_play(t=>{
+  if(pct>=70){
+    // быстрый «глиссандо» кото вверх по пентатонике ё и финальный аккорд с ударом тайко
+    [587,659,784,880,988,1175].forEach((f,i)=>_koto(f,t+i*.075,.55,.15));
+    const c=t+.55;
+    _knock(c,150,60,.45,.5,500);
+    [587,880,1175].forEach((f,i)=>_koto(f,c+i*.03,1.4,.18));
+    _tone(294,c,1.2,{type:'triangle',vol:.1,lp:700,att:.01});
+  }else{
+    // спокойная нисходящая фраза и тихий стук в конце
+    [784,659,587,440].forEach((f,i)=>_koto(f,t+i*.16,.8,.14));
+    _knock(t+.64,170,80,.25,.25,600);
+  }
+});}
+// звук тапа на кнопках интерфейса и вариантах ответа
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest&&e.target.closest('.obtn,.idk-btn,.btn,.mbtn,.gtag,.tpill,.all-btn,.tab,.alpha-head,.brand-mark,.gear-btn');
+  if(!el||el.disabled||el.hasAttribute('disabled')||el.hasAttribute('data-notap'))return;
+  sfxTap();
+},true);
+// разблокировка аудио первым жестом (iOS/Safari)
+(function(){
+  const unlock=()=>{
+    const ac=sndCtx();if(!ac)return;
+    ac.resume&&ac.resume().catch(()=>{});
+    try{const b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0);}catch{}
+    if(ac.state==='running')['click','touchend','keydown'].forEach(ev=>document.removeEventListener(ev,unlock,true));
+  };
+  ['click','touchend','keydown'].forEach(ev=>document.addEventListener(ev,unlock,true));
+})();
 </script>
 </body>
 </html>
